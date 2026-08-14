@@ -5,29 +5,799 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:cursova2._0"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MediaVault" 
+        WindowState="Normal"
+        ResizeMode="CanResize"
+        MinHeight="650" 
+        MinWidth="900"
+        Height="768"
+        Width="1280"
+        Background="#FF0D0D0D">
+
+    <Window.Resources>
+        <!-- БАЗОВІ КОЛЬОРИ -->
+        <SolidColorBrush x:Key="BackgroundPrimary" Color="#FF0D0D0D"/>
+        <SolidColorBrush x:Key="BackgroundSecondary" Color="#FF1A1A1A"/>
+        <SolidColorBrush x:Key="BackgroundCard" Color="#FF2C2C2C"/>
+        <SolidColorBrush x:Key="AccentColor" Color="#FFC05A5A"/>
+        <SolidColorBrush x:Key="AccentHover" Color="#FFD06A6A"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#FFAAAAAA"/>
+        <SolidColorBrush x:Key="TextMuted" Color="#FF666666"/>
+        <SolidColorBrush x:Key="BorderColor" Color="#FF333333"/>
+
+        <!-- СТИЛЬ СКРОЛБАРУ -->
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Width" Value="5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid>
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.Thumb>
+                                    <Thumb Background="#FF444444" Height="40">
+                                        <Thumb.Resources>
+                                            <Style TargetType="Thumb">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Thumb">
+                                                            <Border Background="{TemplateBinding Background}" 
+                                                                    CornerRadius="2" 
+                                                                    Margin="2"/>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </Thumb.Resources>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- СТИЛЬ КАРТКИ -->
+        <Style x:Key="MediaCardStyle" TargetType="Border">
+            <Setter Property="Width" Value="185"/>
+            <Setter Property="Height" Value="290"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundCard}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" Opacity="0.3" ShadowDepth="3" BlurRadius="6"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF333333"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="Black" Opacity="0.7" ShadowDepth="8" BlurRadius="15"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="1.04" ScaleY="1.04"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ШАБЛОН КАРТКИ (щоб не дублювати) -->
+        <DataTemplate x:Key="MediaCardTemplate">
+            <Border Style="{StaticResource MediaCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Верхня частина -->
+                    <Border Grid.Row="0" 
+                            Background="#FF2A2A2A" 
+                            CornerRadius="12,12,0,0">
+                        <Grid>
+                            <TextBlock Text="🎬" FontSize="52" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center" 
+                                       Opacity="0.4"/>
+                            <Border Background="#FFC05A5A" 
+                                    CornerRadius="4" 
+                                    Padding="6,2" 
+                                    Margin="10,10,10,0" 
+                                    VerticalAlignment="Top" 
+                                    HorizontalAlignment="Right">
+                                <TextBlock Text="8.7" 
+                                           Foreground="White" 
+                                           FontSize="11" 
+                                           FontWeight="Bold"/>
+                            </Border>
+                            <Border Background="#80000000" 
+                                    CornerRadius="4" 
+                                    Padding="6,2" 
+                                    Margin="10,10,0,0" 
+                                    VerticalAlignment="Top" 
+                                    HorizontalAlignment="Left">
+                                <TextBlock Text="2010" 
+                                           Foreground="White" 
+                                           FontSize="11" 
+                                           FontWeight="SemiBold"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Нижня частина -->
+                    <Border Grid.Row="1" 
+                            Background="#FF2A2A2A" 
+                            CornerRadius="0,0,12,12" 
+                            Padding="10,8">
+                        <StackPanel>
+                            <TextBlock Text="Inception" 
+                                       Foreground="White" 
+                                       FontWeight="Bold" 
+                                       FontSize="13" 
+                                       TextTrimming="CharacterEllipsis"
+                                       MaxWidth="165"/>
+                            <StackPanel Margin="0,4,0,0">
+                                <TextBlock Text="Christopher Nolan" 
+                                           Foreground="{StaticResource TextMuted}" 
+                                           FontSize="10" 
+                                           TextTrimming="CharacterEllipsis"
+                                           MaxWidth="165"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                    <TextBlock Text="2h 28m" 
+                                               Foreground="{StaticResource TextMuted}" 
+                                               FontSize="10"/>
+                                    <TextBlock Text=" · " 
+                                               Foreground="{StaticResource BorderColor}" 
+                                               FontSize="10"/>
+                                    <TextBlock Text="🎬 Sci-Fi" 
+                                               Foreground="{StaticResource TextMuted}" 
+                                               FontSize="10"/>
+                                </StackPanel>
+                                <Border Height="2" 
+                                        Background="#FF333333" 
+                                        CornerRadius="1" 
+                                        Margin="0,6,0,0">
+                                    <Border Width="70" 
+                                            Background="{StaticResource AccentColor}" 
+                                            CornerRadius="1"/>
+                                </Border>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <!-- СТИЛЬ КАТЕГОРІЙ -->
+        <Style x:Key="CategoryItemStyle" TargetType="Border">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Margin" Value="6,2"/>
+            <Setter Property="Padding" Value="12,9"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#30FFFFFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SelectedCategoryStyle" TargetType="Border" BasedOn="{StaticResource CategoryItemStyle}">
+            <Setter Property="Background" Value="#25FFFFFF"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AccentColor}"/>
+            <Setter Property="BorderThickness" Value="0,0,3,0"/>
+        </Style>
+
+        <!-- СТИЛЬ КНОПКИ -->
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="18,9"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource AccentHover}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="IconButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FF333333"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Width" Value="38"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF444444"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- СТИЛЬ КНОПОК ВІКНА -->
+        <Style x:Key="WindowButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF3A3A3A"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="CloseButtonStyle" TargetType="Button" BasedOn="{StaticResource WindowButtonStyle}">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFE81123"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- СТИЛЬ ПОЛЯ ПОШУКУ -->
+        <Style x:Key="SearchTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="#FF333333"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="18,0,10,0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="20">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Background" Value="#FF3A3A3A"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- СТИЛЬ БЕЙДЖА -->
+        <Style x:Key="BadgeStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="6,1"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
+    </Window.Resources>
+
+    <!-- ГОЛОВНИЙ КОНТЕЙНЕР -->
     <Grid>
-        <Grid.Background>
-            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                <GradientStop Color="Black"/>
-                <GradientStop Color="#FF373333" Offset="1"/>
-            </LinearGradientBrush>
-        </Grid.Background>
-        <Border Width="470" Margin="258,16,72,392" Background="White" CornerRadius="12">
-            <TextBox HorizontalAlignment="Left" Height="18" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Center" Width="446" Background="{x:Null}" SelectionBrush="{x:Null}" BorderBrush="{x:Null}" Margin="10,0,0,0" RenderTransformOrigin="0.501,0.681"/>
+        <!-- ЗАГОЛОВОК ВІКНА -->
+        <Grid VerticalAlignment="Top" Height="44" Background="{StaticResource BackgroundSecondary}" ZIndex="100">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="16,0">
+                <Border Width="28" Height="28" Background="{StaticResource AccentColor}" CornerRadius="6" Margin="0,0,10,0">
+                    <TextBlock Text="⚡" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="MediaVault" FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,8,0">
+                <Button Content="─" Style="{StaticResource WindowButtonStyle}" Click="MinimizeWindow_Click"/>
+                <Button Content="☐" Style="{StaticResource WindowButtonStyle}" Click="MaximizeWindow_Click"/>
+                <Button Content="✕" Style="{StaticResource CloseButtonStyle}" Click="CloseWindow_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ОСНОВНА ЧАСТИНА -->
+        <Border Margin="0,44,0,0" Background="{StaticResource BackgroundPrimary}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" MinWidth="200" MaxWidth="280"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ЛІВА ПАНЕЛЬ -->
+                <Border Grid.Column="0" 
+                        Background="{StaticResource BackgroundSecondary}" 
+                        BorderBrush="{StaticResource BorderColor}" 
+                        BorderThickness="0,0,1,0"
+                        Padding="0,12,0,12">
+
+                    <Grid Margin="0,8,0,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="16,0,16,12">
+                            <TextBlock Text="📊 COLLECTION" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="Bold"/>
+                        </StackPanel>
+
+                        <!-- Статистика -->
+                        <Border Grid.Row="1" Background="#FF1E1E1E" CornerRadius="10" Margin="16,0,16,14" Padding="14,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                                    <TextBlock Text="📁" FontSize="14" Margin="0,0,6,0"/>
+                                    <TextBlock Text="124" Foreground="White" FontSize="13" FontWeight="SemiBold"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <TextBlock Text="💾" FontSize="14" Margin="0,0,6,0"/>
+                                    <TextBlock Text="45.3 GB" Foreground="White" FontSize="13" FontWeight="SemiBold"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,4,0,0">
+                                    <TextBlock Text="🎬" FontSize="12" Margin="0,0,4,0"/>
+                                    <TextBlock Text="42" Foreground="{StaticResource TextSecondary}" FontSize="12"/>
+                                    <TextBlock Text=" films" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="2,0,0,0"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,0,0">
+                                    <TextBlock Text="📚" FontSize="12" Margin="0,0,4,0"/>
+                                    <TextBlock Text="82" Foreground="{StaticResource TextSecondary}" FontSize="12"/>
+                                    <TextBlock Text=" books" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="2,0,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Категорії -->
+                        <StackPanel Grid.Row="2" Margin="12,0,12,0">
+                            <TextBlock Text="CATEGORIES" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="Bold" Margin="8,0,0,10"/>
+
+                            <Border Style="{StaticResource SelectedCategoryStyle}">
+                                <Grid>
+                                    <TextBlock Text="📂 All Files" Foreground="White" FontSize="14" FontWeight="SemiBold"/>
+                                    <Border Style="{StaticResource BadgeStyle}" Margin="0,0,8,0">
+                                        <TextBlock Text="124" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <Border Style="{StaticResource CategoryItemStyle}">
+                                <Grid>
+                                    <TextBlock Text="🎬 Films" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                        <TextBlock Text="42" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <Border Style="{StaticResource CategoryItemStyle}">
+                                <Grid>
+                                    <TextBlock Text="📖 Books" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                        <TextBlock Text="82" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <Border Style="{StaticResource CategoryItemStyle}">
+                                <Grid>
+                                    <TextBlock Text="🎵 Music" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                        <TextBlock Text="12" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <Border Style="{StaticResource CategoryItemStyle}">
+                                <Grid>
+                                    <TextBlock Text="🖼️ Images" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                        <TextBlock Text="18" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <Border Style="{StaticResource CategoryItemStyle}">
+                                <Grid>
+                                    <TextBlock Text="📄 Documents" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                        <TextBlock Text="15" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <Border Height="1" Background="{StaticResource BorderColor}" Margin="8,16,8,16"/>
+
+                            <Border Style="{StaticResource CategoryItemStyle}">
+                                <Grid>
+                                    <TextBlock Text="⭐ Favorites" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
+                                    <Border Background="#FFB8860B" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                        <TextBlock Text="23" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="3" Margin="12,0,12,16">
+                            <Border Style="{StaticResource CategoryItemStyle}" Margin="6,2">
+                                <TextBlock Text="⚙️ Settings" Foreground="{StaticResource TextMuted}" FontSize="14" FontWeight="SemiBold"/>
+                            </Border>
+                            <Border Style="{StaticResource CategoryItemStyle}" Margin="6,2">
+                                <TextBlock Text="❓ Help" Foreground="{StaticResource TextMuted}" FontSize="14" FontWeight="SemiBold"/>
+                            </Border>
+                            <TextBlock Text="v2.0.0" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="12,16,0,0" Opacity="0.5"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ПРАВА ЧАСТИНА -->
+                <Grid Grid.Column="1" Background="{StaticResource BackgroundPrimary}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Верхня панель -->
+                    <Border Grid.Row="0" 
+                            Background="{StaticResource BackgroundSecondary}" 
+                            BorderBrush="{StaticResource BorderColor}" 
+                            BorderThickness="0,0,0,1"
+                            Padding="20,12,20,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Background="#FF333333" CornerRadius="20" MaxWidth="480" HorizontalAlignment="Left">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Grid.Column="0" Text="Search files, authors, genres..." Style="{StaticResource SearchTextBoxStyle}"/>
+
+                                    <TextBlock Grid.Column="1" Text="⌘" FontSize="12" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" Margin="0,0,14,0" Opacity="0.5"/>
+                                </Grid>
+                            </Border>
+
+                            <Button Grid.Column="1" Content="📁 Add Folder" Style="{StaticResource PrimaryButtonStyle}" Margin="12,0,0,0"/>
+                            <Button Grid.Column="2" Content="↻" Style="{StaticResource IconButtonStyle}" Margin="8,0,0,0"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- КАРТКИ -->
+                    <ScrollViewer Grid.Row="1" 
+                                  Margin="12,12,12,6" 
+                                  Background="Transparent"
+                                  HorizontalScrollBarVisibility="Disabled" 
+                                  VerticalScrollBarVisibility="Auto"
+                                  Padding="4">
+
+                        <WrapPanel>
+                            <!-- КАРТКА 1 -->
+                            <Border Style="{StaticResource MediaCardStyle}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
+                                        <Grid>
+                                            <TextBlock Text="🎬" FontSize="52" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4"/>
+                                            <Border Background="#FFC05A5A" CornerRadius="4" Padding="6,2" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right">
+                                                <TextBlock Text="8.7" Foreground="White" FontSize="11" FontWeight="Bold"/>
+                                            </Border>
+                                            <Border Background="#80000000" CornerRadius="4" Padding="6,2" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
+                                                <TextBlock Text="2010" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
+                                        <StackPanel>
+                                            <TextBlock Text="Inception" Foreground="White" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
+                                            <StackPanel Margin="0,4,0,0">
+                                                <TextBlock Text="Christopher Nolan" Foreground="{StaticResource TextMuted}" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <TextBlock Text="2h 28m" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                                                    <TextBlock Text=" · " Foreground="{StaticResource BorderColor}" FontSize="10"/>
+                                                    <TextBlock Text="🎬 Sci-Fi" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                                                </StackPanel>
+                                                <Border Height="2" Background="#FF333333" CornerRadius="1" Margin="0,6,0,0">
+                                                    <Border Width="70" Background="{StaticResource AccentColor}" CornerRadius="1"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <!-- КАРТКА 2 -->
+                            <Border Style="{StaticResource MediaCardStyle}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
+                                        <Grid>
+                                            <TextBlock Text="📚" FontSize="52" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4"/>
+                                            <Border Background="#FFC05A5A" CornerRadius="4" Padding="6,2" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right">
+                                                <TextBlock Text="4.5" Foreground="White" FontSize="11" FontWeight="Bold"/>
+                                            </Border>
+                                            <Border Background="#80000000" CornerRadius="4" Padding="6,2" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
+                                                <TextBlock Text="1990" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
+                                        <StackPanel>
+                                            <TextBlock Text="The Witcher" Foreground="White" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
+                                            <StackPanel Margin="0,4,0,0">
+                                                <TextBlock Text="Andrzej Sapkowski" Foreground="{StaticResource TextMuted}" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <TextBlock Text="432 pages" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                                                    <TextBlock Text=" · " Foreground="{StaticResource BorderColor}" FontSize="10"/>
+                                                    <TextBlock Text="📖 Fantasy" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                                                </StackPanel>
+                                                <Border Height="2" Background="#FF333333" CornerRadius="1" Margin="0,6,0,0">
+                                                    <Border Width="40" Background="#FFB8860B" CornerRadius="1"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <!-- КАРТКА 3 -->
+                            <Border Style="{StaticResource MediaCardStyle}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
+                                        <Grid>
+                                            <TextBlock Text="🎵" FontSize="52" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4"/>
+                                            <Border Background="#FFC05A5A" CornerRadius="4" Padding="6,2" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right">
+                                                <TextBlock Text="4.2" Foreground="White" FontSize="11" FontWeight="Bold"/>
+                                            </Border>
+                                            <Border Background="#80000000" CornerRadius="4" Padding="6,2" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
+                                                <TextBlock Text="2013" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
+                                        <StackPanel>
+                                            <TextBlock Text="Random Access Memories" Foreground="White" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
+                                            <StackPanel Margin="0,4,0,0">
+                                                <TextBlock Text="Daft Punk" Foreground="{StaticResource TextMuted}" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <TextBlock Text="74 min" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                                                    <TextBlock Text=" · " Foreground="{StaticResource BorderColor}" FontSize="10"/>
+                                                    <TextBlock Text="🎵 Electronic" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                                                </StackPanel>
+                                                <Border Height="2" Background="#FF333333" CornerRadius="1" Margin="0,6,0,0">
+                                                    <Border Width="90" Background="{StaticResource AccentColor}" CornerRadius="1"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <!-- КАРТКА 4 -->
+                            <Border Style="{StaticResource MediaCardStyle}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
+                                        <Grid>
+                                            <TextBlock Text="🖼️" FontSize="52" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4"/>
+                                            <Border Background="#80000000" CornerRadius="4" Padding="6,2" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
+                                                <TextBlock Text="2024" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
+                                        <StackPanel>
+                                            <TextBlock Text="Mountain Sunset" Foreground="White" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
+                                            <StackPanel Margin="0,4,0,0">
+                                                <TextBlock Text="Photography" Foreground="{StaticResource TextMuted}" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <TextBlock Text="3840x2160" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                                                    <TextBlock Text=" · " Foreground="{StaticResource BorderColor}" FontSize="10"/>
+                                                    <TextBlock Text="4.2 MB" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                                                </StackPanel>
+                                                <Border Height="2" Background="#FF333333" CornerRadius="1" Margin="0,6,0,0">
+                                                    <Border Width="100" Background="#FF4CAF50" CornerRadius="1"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <!-- КАРТКА 5 -->
+                            <Border Style="{StaticResource MediaCardStyle}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
+                                        <Grid>
+                                            <TextBlock Text="📄" FontSize="52" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4"/>
+                                            <Border Background="#FFC05A5A" CornerRadius="4" Padding="6,2" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right">
+                                                <TextBlock Text="4.8" Foreground="White" FontSize="11" FontWeight="Bold"/>
+                                            </Border>
+                                            <Border Background="#80000000" CornerRadius="4" Padding="6,2" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
+                                                <TextBlock Text="2023" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
+                                        <StackPanel>
+                                            <TextBlock Text="C# Programming Guide" Foreground="White" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
+                                            <StackPanel Margin="0,4,0,0">
+                                                <TextBlock Text="Microsoft" Foreground="{StaticResource TextMuted}" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <TextBlock Text="850 pages" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                                                    <TextBlock Text=" · " Foreground="{StaticResource BorderColor}" FontSize="10"/>
+                                                    <TextBlock Text="📄 PDF" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                                                </StackPanel>
+                                                <Border Height="2" Background="#FF333333" CornerRadius="1" Margin="0,6,0,0">
+                                                    <Border Width="60" Background="#FF2196F3" CornerRadius="1"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <!-- КАРТКА 6 -->
+                            <Border Style="{StaticResource MediaCardStyle}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
+                                        <Grid>
+                                            <TextBlock Text="🎬" FontSize="52" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4"/>
+                                            <Border Background="#FFC05A5A" CornerRadius="4" Padding="6,2" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right">
+                                                <TextBlock Text="9.1" Foreground="White" FontSize="11" FontWeight="Bold"/>
+                                            </Border>
+                                            <Border Background="#80000000" CornerRadius="4" Padding="6,2" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
+                                                <TextBlock Text="1994" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
+                                        <StackPanel>
+                                            <TextBlock Text="The Shawshank Redemption" Foreground="White" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
+                                            <StackPanel Margin="0,4,0,0">
+                                                <TextBlock Text="Frank Darabont" Foreground="{StaticResource TextMuted}" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <TextBlock Text="2h 22m" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                                                    <TextBlock Text=" · " Foreground="{StaticResource BorderColor}" FontSize="10"/>
+                                                    <TextBlock Text="🎬 Drama" Foreground="{StaticResource TextMuted}" FontSize="10"/>
+                                                </StackPanel>
+                                                <Border Height="2" Background="#FF333333" CornerRadius="1" Margin="0,6,0,0">
+                                                    <Border Width="85" Background="{StaticResource AccentColor}" CornerRadius="1"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </WrapPanel>
+                    </ScrollViewer>
+
+                    <!-- Нижня панель -->
+                    <Border Grid.Row="2" 
+                            Background="{StaticResource BackgroundSecondary}" 
+                            BorderBrush="{StaticResource BorderColor}" 
+                            BorderThickness="0,1,0,0"
+                            Padding="20,10,20,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Showing" Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                                <TextBlock Text=" 1-12 " Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="SemiBold"/>
+                                <TextBlock Text="of" Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                                <TextBlock Text=" 124 " Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="SemiBold"/>
+                                <TextBlock Text="items" Foreground="{StaticResource TextMuted}" FontSize="12"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Content="◀" Style="{StaticResource IconButtonStyle}" Width="32" Height="32" FontSize="12" Margin="0,0,4,0"/>
+                                <Border Background="{StaticResource AccentColor}" CornerRadius="6" Padding="10,4" Margin="2,0">
+                                    <TextBlock Text="1" Foreground="White" FontSize="12" FontWeight="Bold"/>
+                                </Border>
+                                <Button Content="2" Style="{StaticResource IconButtonStyle}" Width="32" Height="32" FontSize="12" Margin="2,0"/>
+                                <Button Content="3" Style="{StaticResource IconButtonStyle}" Width="32" Height="32" FontSize="12" Margin="2,0"/>
+                                <Button Content="..." Style="{StaticResource IconButtonStyle}" Width="28" Height="32" FontSize="12" Margin="2,0"/>
+                                <Button Content="11" Style="{StaticResource IconButtonStyle}" Width="32" Height="32" FontSize="12" Margin="2,0"/>
+                                <Button Content="▶" Style="{StaticResource IconButtonStyle}" Width="32" Height="32" FontSize="12" Margin="4,0,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
         </Border>
-        <Border BorderThickness="1" HorizontalAlignment="Left" Height="490" VerticalAlignment="Center" Width="220" Margin="-23,0,0,0">
-            <Border.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="Black" Offset="0"/>
-                    <GradientStop Color="#FF3D3A3A" Offset="1"/>
-                </LinearGradientBrush>
-            </Border.Background>
-
-        </Border>
-
-        <Grid HorizontalAlignment="Left" Height="310" Margin="236,91,0,0" VerticalAlignment="Top" Width="541" Background="#FF867A7A"/>
-
-
     </Grid>
 </Window>

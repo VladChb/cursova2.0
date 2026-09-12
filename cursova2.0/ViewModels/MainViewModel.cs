@@ -17,23 +17,12 @@ namespace MediaVault.ViewModels
         private readonly FileScanner _scanner;
         private readonly DataStorageService _storage;
 
-        // ============================================================
-        // КОЛЕКЦІЇ
-        // ============================================================
-
-        /// <summary>
-        /// Повна колекція всіх медіа-файлів
-        /// </summary>
         public ObservableCollection<MediaItem> AllMediaItems { get; set; } = new();
 
-        /// <summary>
-        /// Відфільтрована колекція (для відображення в UI)
-        /// </summary>
+        public int DocumentCount => AllMediaItems.Count(x => x.Type == MediaType.Document);
+
         public ObservableCollection<MediaItem> FilteredMediaItems { get; set; } = new();
 
-        // ============================================================
-        // ВЛАСТИВОСТІ UI
-        // ============================================================
 
         private string _searchText = string.Empty;
         public string SearchText
@@ -78,10 +67,6 @@ namespace MediaVault.ViewModels
             set => SetProperty(ref _scanProgress, value);
         }
 
-        // ============================================================
-        // СТАТИСТИКА (для бокової панелі)
-        // ============================================================
-
         public int TotalCount => AllMediaItems.Count;
         public int FilmCount => AllMediaItems.Count(x => x.Type == MediaType.Film);
         public int BookCount => AllMediaItems.Count(x => x.Type == MediaType.Book);
@@ -102,19 +87,12 @@ namespace MediaVault.ViewModels
             }
         }
 
-        // ============================================================
-        // КОМАНДИ
-        // ============================================================
-
         public RelayCommand AddFolderCommand { get; }
         public RelayCommand SaveCommand { get; }
         public RelayCommand ClearCommand { get; }
         public RelayCommand FilterCommand { get; }
 
-        // ============================================================
-        // КОНСТРУКТОР
-        // ============================================================
-
+ 
         public MainViewModel()
         {
             _scanner = new FileScanner();
@@ -125,17 +103,9 @@ namespace MediaVault.ViewModels
             ClearCommand = new RelayCommand(async _ => await ClearAsync());
             FilterCommand = new RelayCommand(FilterByType);
 
-            // Завантажуємо збережену колекцію при старті
             _ = LoadSavedCollectionAsync();
         }
 
-        // ============================================================
-        // МЕТОДИ
-        // ============================================================
-
-        /// <summary>
-        /// Завантажує збережену колекцію при старті програми
-        /// </summary>
         private async Task LoadSavedCollectionAsync()
         {
             var saved = await _storage.LoadMediaItemsAsync();
@@ -152,9 +122,6 @@ namespace MediaVault.ViewModels
             }
         }
 
-        /// <summary>
-        /// Відкриває діалог вибору папки та сканує її
-        /// </summary>
         private async Task AddFolderAsync()
         {
             var dialog = new OpenFolderDialog
@@ -180,7 +147,6 @@ namespace MediaVault.ViewModels
 
                 foreach (var file in files)
                 {
-                    // Перевіряємо, чи файл вже є в колекції
                     if (AllMediaItems.Any(x => x.FilePath == file))
                     {
                         skipped++;
@@ -195,7 +161,6 @@ namespace MediaVault.ViewModels
                 ApplyFilter();
                 UpdateStats();
 
-                // Автоматично зберігаємо після сканування
                 await SaveAsync();
 
                 StatusText = $"Додано {added} файлів" + (skipped > 0 ? $", пропущено {skipped}" : "");
@@ -214,9 +179,6 @@ namespace MediaVault.ViewModels
             }
         }
 
-        /// <summary>
-        /// Створює MediaItem з файлу
-        /// </summary>
         private MediaItem CreateMediaItem(string filePath)
         {
             var fileInfo = new FileInfo(filePath);
@@ -233,9 +195,6 @@ namespace MediaVault.ViewModels
             };
         }
 
-        /// <summary>
-        /// Зберігає колекцію у JSON
-        /// </summary>
         private async Task SaveAsync()
         {
             try
@@ -249,9 +208,6 @@ namespace MediaVault.ViewModels
             }
         }
 
-        /// <summary>
-        /// Очищає всю колекцію
-        /// </summary>
         private async Task ClearAsync()
         {
             var result = MessageBox.Show(
@@ -270,13 +226,18 @@ namespace MediaVault.ViewModels
             StatusText = "Колекцію очищено";
         }
 
-        /// <summary>
-        /// Фільтрує колекцію за типом
-        /// </summary>
         private void FilterByType(object parameter)
         {
             if (parameter is string typeStr)
             {
+                if (typeStr == "Favorite")
+                {
+                    FilteredMediaItems.Clear();
+                    foreach (var item in AllMediaItems.Where(x => x.IsFavorite))
+                        FilteredMediaItems.Add(item);
+                    return;
+                }
+
                 SelectedFilter = typeStr switch
                 {
                     "Film" => MediaType.Film,
@@ -289,18 +250,13 @@ namespace MediaVault.ViewModels
             }
         }
 
-        /// <summary>
-        /// Застосовує пошук та фільтр до колекції
-        /// </summary>
         private void ApplyFilter()
         {
             var query = AllMediaItems.AsEnumerable();
 
-            // Фільтр за типом
             if (SelectedFilter != MediaType.Unknown)
                 query = query.Where(x => x.Type == SelectedFilter);
 
-            // Пошук за текстом
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
                 string search = SearchText.ToLowerInvariant();
@@ -316,9 +272,6 @@ namespace MediaVault.ViewModels
                 FilteredMediaItems.Add(item);
         }
 
-        /// <summary>
-        /// Оновлює статистику (викликає OnPropertyChanged для всіх властивостей)
-        /// </summary>
         private void UpdateStats()
         {
             OnPropertyChanged(nameof(TotalCount));
@@ -326,6 +279,7 @@ namespace MediaVault.ViewModels
             OnPropertyChanged(nameof(BookCount));
             OnPropertyChanged(nameof(MusicCount));
             OnPropertyChanged(nameof(ImageCount));
+            OnPropertyChanged(nameof(DocumentCount));    
             OnPropertyChanged(nameof(FavoriteCount));
             OnPropertyChanged(nameof(TotalSize));
         }

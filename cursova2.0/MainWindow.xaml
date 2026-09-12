@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MediaVault"
+        xmlns:converters="clr-namespace:MediaVault.Converters"
         mc:Ignorable="d"
         Title="MediaVault" 
         WindowState="Normal"
@@ -15,6 +16,10 @@
         Background="#FF0D0D0D">
 
     <Window.Resources>
+        <!-- КОНВЕРТЕРИ -->
+        <converters:RatingToVisibilityConverter x:Key="RatingToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+
         <!-- БАЗОВІ КОЛЬОРИ -->
         <SolidColorBrush x:Key="BackgroundPrimary" Color="#FF0D0D0D"/>
         <SolidColorBrush x:Key="BackgroundSecondary" Color="#FF1A1A1A"/>
@@ -88,93 +93,6 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-
-        <!-- ШАБЛОН КАРТКИ (щоб не дублювати) -->
-        <DataTemplate x:Key="MediaCardTemplate">
-            <Border Style="{StaticResource MediaCardStyle}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Верхня частина -->
-                    <Border Grid.Row="0" 
-                            Background="#FF2A2A2A" 
-                            CornerRadius="12,12,0,0">
-                        <Grid>
-                            <TextBlock Text="🎬" FontSize="52" 
-                                       HorizontalAlignment="Center" 
-                                       VerticalAlignment="Center" 
-                                       Opacity="0.4"/>
-                            <Border Background="#FFC05A5A" 
-                                    CornerRadius="4" 
-                                    Padding="6,2" 
-                                    Margin="10,10,10,0" 
-                                    VerticalAlignment="Top" 
-                                    HorizontalAlignment="Right">
-                                <TextBlock Text="8.7" 
-                                           Foreground="White" 
-                                           FontSize="11" 
-                                           FontWeight="Bold"/>
-                            </Border>
-                            <Border Background="#80000000" 
-                                    CornerRadius="4" 
-                                    Padding="6,2" 
-                                    Margin="10,10,0,0" 
-                                    VerticalAlignment="Top" 
-                                    HorizontalAlignment="Left">
-                                <TextBlock Text="2010" 
-                                           Foreground="White" 
-                                           FontSize="11" 
-                                           FontWeight="SemiBold"/>
-                            </Border>
-                        </Grid>
-                    </Border>
-
-                    <!-- Нижня частина -->
-                    <Border Grid.Row="1" 
-                            Background="#FF2A2A2A" 
-                            CornerRadius="0,0,12,12" 
-                            Padding="10,8">
-                        <StackPanel>
-                            <TextBlock Text="Inception" 
-                                       Foreground="White" 
-                                       FontWeight="Bold" 
-                                       FontSize="13" 
-                                       TextTrimming="CharacterEllipsis"
-                                       MaxWidth="165"/>
-                            <StackPanel Margin="0,4,0,0">
-                                <TextBlock Text="Christopher Nolan" 
-                                           Foreground="{StaticResource TextMuted}" 
-                                           FontSize="10" 
-                                           TextTrimming="CharacterEllipsis"
-                                           MaxWidth="165"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                                    <TextBlock Text="2h 28m" 
-                                               Foreground="{StaticResource TextMuted}" 
-                                               FontSize="10"/>
-                                    <TextBlock Text=" · " 
-                                               Foreground="{StaticResource BorderColor}" 
-                                               FontSize="10"/>
-                                    <TextBlock Text="🎬 Sci-Fi" 
-                                               Foreground="{StaticResource TextMuted}" 
-                                               FontSize="10"/>
-                                </StackPanel>
-                                <Border Height="2" 
-                                        Background="#FF333333" 
-                                        CornerRadius="1" 
-                                        Margin="0,6,0,0">
-                                    <Border Width="70" 
-                                            Background="{StaticResource AccentColor}" 
-                                            CornerRadius="1"/>
-                                </Border>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-            </Border>
-        </DataTemplate>
 
         <!-- СТИЛЬ КАТЕГОРІЙ -->
         <Style x:Key="CategoryItemStyle" TargetType="Border">
@@ -291,11 +209,11 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" 
-                        CornerRadius="8" 
-                        Margin="0">
+                                CornerRadius="8" 
+                                Margin="0">
                             <ContentPresenter HorizontalAlignment="Left" 
-                                      VerticalAlignment="Center"
-                                      Margin="{TemplateBinding Padding}"/>
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -310,7 +228,7 @@
             </Style.Triggers>
         </Style>
 
-        <!-- СТИЛЬ ВИБРАНОЇ КАТЕГОРІЇ (для кнопки) -->
+        <!-- СТИЛЬ ВИБРАНОЇ КАТЕГОРІЇ -->
         <Style x:Key="SelectedCategoryButtonStyle" TargetType="Button" BasedOn="{StaticResource CategoryButtonStyle}">
             <Setter Property="Background" Value="#25FFFFFF"/>
             <Setter Property="BorderBrush" Value="{StaticResource AccentColor}"/>
@@ -391,10 +309,10 @@
 
                 <!-- ЛІВА ПАНЕЛЬ -->
                 <Border Grid.Column="0" 
-        Background="{StaticResource BackgroundSecondary}" 
-        BorderBrush="{StaticResource BorderColor}" 
-        BorderThickness="0,0,1,0"
-        Padding="0,12,0,12">
+                        Background="{StaticResource BackgroundSecondary}" 
+                        BorderBrush="{StaticResource BorderColor}" 
+                        BorderThickness="0,0,1,0"
+                        Padding="0,12,0,12">
 
                     <Grid Margin="0,8,0,8">
                         <Grid.RowDefinitions>
@@ -422,90 +340,106 @@
 
                                 <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
                                     <TextBlock Text="📁" FontSize="14" Margin="0,0,6,0"/>
-                                    <TextBlock Text="124" Foreground="White" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding TotalCount}" Foreground="White" FontSize="13" FontWeight="SemiBold"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                                     <TextBlock Text="💾" FontSize="14" Margin="0,0,6,0"/>
-                                    <TextBlock Text="45.3 GB" Foreground="White" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding TotalSize}" Foreground="White" FontSize="13" FontWeight="SemiBold"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,4,0,0">
                                     <TextBlock Text="🎬" FontSize="12" Margin="0,0,4,0"/>
-                                    <TextBlock Text="42" Foreground="{StaticResource TextSecondary}" FontSize="12"/>
+                                    <TextBlock Text="{Binding FilmCount}" Foreground="{StaticResource TextSecondary}" FontSize="12"/>
                                     <TextBlock Text=" films" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="2,0,0,0"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,0,0">
                                     <TextBlock Text="📚" FontSize="12" Margin="0,0,4,0"/>
-                                    <TextBlock Text="82" Foreground="{StaticResource TextSecondary}" FontSize="12"/>
+                                    <TextBlock Text="{Binding BookCount}" Foreground="{StaticResource TextSecondary}" FontSize="12"/>
                                     <TextBlock Text=" books" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="2,0,0,0"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
 
-                        <!-- Категорії як кнопки -->
+                        <!-- Категорії -->
                         <StackPanel Grid.Row="2" Margin="12,0,12,0">
                             <TextBlock Text="CATEGORIES" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="Bold" Margin="8,0,0,10"/>
 
-                            <!-- All Files (вибрано) -->
-                            <Button Style="{StaticResource CategoryButtonStyle}" 
-                    IsEnabled="True"
-                    Margin="0,0,0,2">
+                            <!-- All Files -->
+                            <Button Style="{StaticResource SelectedCategoryButtonStyle}" 
+                                    Command="{Binding FilterCommand}" 
+                                    CommandParameter="All"
+                                    Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="📂 All Files" Foreground="White" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Style="{StaticResource BadgeStyle}" Margin="103,0,0,0" HorizontalAlignment="Left" Height="19" VerticalAlignment="Center">
-                                        <TextBlock Text="124" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    <Border Style="{StaticResource BadgeStyle}" Margin="0,0,8,0">
+                                        <TextBlock Text="{Binding TotalCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
                             </Button>
 
                             <!-- Films -->
-                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
+                            <Button Style="{StaticResource CategoryButtonStyle}" 
+                                    Command="{Binding FilterCommand}" 
+                                    CommandParameter="Film"
+                                    Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="🎬 Films" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="106,0,0,0" HorizontalAlignment="Left">
-                                        <TextBlock Text="42" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding FilmCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
                             </Button>
 
                             <!-- Books -->
-                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
+                            <Button Style="{StaticResource CategoryButtonStyle}" 
+                                    Command="{Binding FilterCommand}" 
+                                    CommandParameter="Book"
+                                    Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="📖 Books" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="106,0,0,0" HorizontalAlignment="Left">
-                                        <TextBlock Text="82" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding BookCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
                             </Button>
 
                             <!-- Music -->
-                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
+                            <Button Style="{StaticResource CategoryButtonStyle}" 
+                                    Command="{Binding FilterCommand}" 
+                                    CommandParameter="Music"
+                                    Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="🎵 Music" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="106,0,0,0" HorizontalAlignment="Left">
-                                        <TextBlock Text="12" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding MusicCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
                             </Button>
 
                             <!-- Images -->
-                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
+                            <Button Style="{StaticResource CategoryButtonStyle}" 
+                                    Command="{Binding FilterCommand}" 
+                                    CommandParameter="Image"
+                                    Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="🖼️ Images" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="106,0,0,0" HorizontalAlignment="Left">
-                                        <TextBlock Text="18" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding ImageCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
                             </Button>
 
                             <!-- Documents -->
-                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
+                            <Button Style="{StaticResource CategoryButtonStyle}" 
+                                    Command="{Binding FilterCommand}" 
+                                    CommandParameter="Document"
+                                    Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="📄 Documents" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="106,0,0,0" HorizontalAlignment="Left">
-                                        <TextBlock Text="15" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding DocumentCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
                             </Button>
@@ -513,11 +447,14 @@
                             <Border Height="1" Background="{StaticResource BorderColor}" Margin="8,16,8,16"/>
 
                             <!-- Favorites -->
-                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
+                            <Button Style="{StaticResource CategoryButtonStyle}" 
+                                    Command="{Binding FilterCommand}" 
+                                    CommandParameter="Favorite"
+                                    Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="⭐ Favorites" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FFB8860B" CornerRadius="10" Padding="6,1" Margin="106,0,9,0" HorizontalAlignment="Left">
-                                        <TextBlock Text="23" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    <Border Background="#FFB8860B" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding FavoriteCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
                             </Button>
@@ -563,14 +500,24 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBox Grid.Column="0" Text="Search files, authors, genres..." Style="{StaticResource SearchTextBoxStyle}"/>
+                                    <TextBox Grid.Column="0" 
+                                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                             Style="{StaticResource SearchTextBoxStyle}"/>
 
                                     <TextBlock Grid.Column="1" Text="⌘" FontSize="12" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" Margin="0,0,14,0" Opacity="0.5"/>
                                 </Grid>
                             </Border>
 
-                            <Button Grid.Column="1" Content="📁 Add Folder" Style="{StaticResource PrimaryButtonStyle}" Margin="12,0,0,0" Click="AddFolder_Click"/>
-                            <Button Grid.Column="2" Content="↻" Style="{StaticResource IconButtonStyle}" Margin="8,0,0,0"/>
+                            <Button Grid.Column="1" 
+                                    Content="📁 Add Folder" 
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Command="{Binding AddFolderCommand}"
+                                    Margin="12,0,0,0"/>
+                            <Button Grid.Column="2" 
+                                    Content="↻" 
+                                    Style="{StaticResource IconButtonStyle}"
+                                    Command="{Binding SaveCommand}"
+                                    Margin="8,0,0,0"/>
                         </Grid>
                     </Border>
 
@@ -582,241 +529,71 @@
                                   VerticalScrollBarVisibility="Auto"
                                   Padding="4">
 
-                        <WrapPanel>
-                            <!-- КАРТКА 1 -->
-                            <Border Style="{StaticResource MediaCardStyle}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
+                        <ItemsControl ItemsSource="{Binding FilteredMediaItems}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
 
-                                    <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource MediaCardStyle}">
                                         <Grid>
-                                            <TextBlock Text="🎬" FontSize="52" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4"/>
-                                            <Border Background="#FFC05A5A" CornerRadius="4" Padding="6,2" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right">
-                                                <TextBlock Text="8.7" Foreground="White" FontSize="11" FontWeight="Bold"/>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Верхня частина (іконка типу) -->
+                                            <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
+                                                <Grid>
+                                                    <TextBlock Text="{Binding TypeIcon}" 
+                                                               FontSize="52" 
+                                                               HorizontalAlignment="Center" 
+                                                               VerticalAlignment="Center" 
+                                                               Opacity="0.4"/>
+
+                                                    <!-- Рейтинг (якщо є) -->
+                                                    <Border Background="#FFC05A5A" 
+                                                            CornerRadius="4" 
+                                                            Padding="6,2" 
+                                                            Margin="10,10,10,0" 
+                                                            VerticalAlignment="Top" 
+                                                            HorizontalAlignment="Right"
+                                                            Visibility="{Binding Rating, Converter={StaticResource RatingToVisibilityConverter}}">
+                                                        <TextBlock Text="{Binding Rating}" 
+                                                                   Foreground="White" 
+                                                                   FontSize="11" 
+                                                                   FontWeight="Bold"/>
+                                                    </Border>
+                                                </Grid>
                                             </Border>
-                                            <Border Background="#80000000" CornerRadius="4" Padding="6,2" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
-                                                <TextBlock Text="2010" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+
+                                            <!-- Нижня частина (назва та розмір) -->
+                                            <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Title}" 
+                                                               Foreground="White" 
+                                                               FontWeight="Bold" 
+                                                               FontSize="13" 
+                                                               TextTrimming="CharacterEllipsis"
+                                                               MaxWidth="165"/>
+
+                                                    <TextBlock Text="{Binding FormattedSize}" 
+                                                               Foreground="{StaticResource TextMuted}" 
+                                                               FontSize="10" 
+                                                               Margin="0,2,0,0"/>
+                                                </StackPanel>
                                             </Border>
                                         </Grid>
                                     </Border>
-
-                                    <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
-                                        <StackPanel>
-                                            <TextBlock Text="Inception" Foreground="White" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
-                                            <StackPanel Margin="0,4,0,0">
-                                                <TextBlock Text="Christopher Nolan" Foreground="{StaticResource TextMuted}" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
-                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                                                    <TextBlock Text="2h 28m" Foreground="{StaticResource TextMuted}" FontSize="10"/>
-                                                    <TextBlock Text=" · " Foreground="{StaticResource BorderColor}" FontSize="10"/>
-                                                    <TextBlock Text="🎬 Sci-Fi" Foreground="{StaticResource TextMuted}" FontSize="10"/>
-                                                </StackPanel>
-                                                <Border Height="2" Background="#FF333333" CornerRadius="1" Margin="0,6,0,0">
-                                                    <Border Width="70" Background="{StaticResource AccentColor}" CornerRadius="1"/>
-                                                </Border>
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
-                            </Border>
-
-                            <!-- КАРТКА 2 -->
-                            <Border Style="{StaticResource MediaCardStyle}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-
-                                    <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
-                                        <Grid>
-                                            <TextBlock Text="📚" FontSize="52" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4"/>
-                                            <Border Background="#FFC05A5A" CornerRadius="4" Padding="6,2" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right">
-                                                <TextBlock Text="4.5" Foreground="White" FontSize="11" FontWeight="Bold"/>
-                                            </Border>
-                                            <Border Background="#80000000" CornerRadius="4" Padding="6,2" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
-                                                <TextBlock Text="1990" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
-                                            </Border>
-                                        </Grid>
-                                    </Border>
-
-                                    <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
-                                        <StackPanel>
-                                            <TextBlock Text="The Witcher" Foreground="White" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
-                                            <StackPanel Margin="0,4,0,0">
-                                                <TextBlock Text="Andrzej Sapkowski" Foreground="{StaticResource TextMuted}" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
-                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                                                    <TextBlock Text="432 pages" Foreground="{StaticResource TextMuted}" FontSize="10"/>
-                                                    <TextBlock Text=" · " Foreground="{StaticResource BorderColor}" FontSize="10"/>
-                                                    <TextBlock Text="📖 Fantasy" Foreground="{StaticResource TextMuted}" FontSize="10"/>
-                                                </StackPanel>
-                                                <Border Height="2" Background="#FF333333" CornerRadius="1" Margin="0,6,0,0">
-                                                    <Border Width="40" Background="#FFB8860B" CornerRadius="1"/>
-                                                </Border>
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
-                            </Border>
-
-                            <!-- КАРТКА 3 -->
-                            <Border Style="{StaticResource MediaCardStyle}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-
-                                    <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
-                                        <Grid>
-                                            <TextBlock Text="🎵" FontSize="52" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4"/>
-                                            <Border Background="#FFC05A5A" CornerRadius="4" Padding="6,2" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right">
-                                                <TextBlock Text="4.2" Foreground="White" FontSize="11" FontWeight="Bold"/>
-                                            </Border>
-                                            <Border Background="#80000000" CornerRadius="4" Padding="6,2" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
-                                                <TextBlock Text="2013" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
-                                            </Border>
-                                        </Grid>
-                                    </Border>
-
-                                    <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
-                                        <StackPanel>
-                                            <TextBlock Text="Random Access Memories" Foreground="White" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
-                                            <StackPanel Margin="0,4,0,0">
-                                                <TextBlock Text="Daft Punk" Foreground="{StaticResource TextMuted}" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
-                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                                                    <TextBlock Text="74 min" Foreground="{StaticResource TextMuted}" FontSize="10"/>
-                                                    <TextBlock Text=" · " Foreground="{StaticResource BorderColor}" FontSize="10"/>
-                                                    <TextBlock Text="🎵 Electronic" Foreground="{StaticResource TextMuted}" FontSize="10"/>
-                                                </StackPanel>
-                                                <Border Height="2" Background="#FF333333" CornerRadius="1" Margin="0,6,0,0">
-                                                    <Border Width="90" Background="{StaticResource AccentColor}" CornerRadius="1"/>
-                                                </Border>
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
-                            </Border>
-
-                            <!-- КАРТКА 4 -->
-                            <Border Style="{StaticResource MediaCardStyle}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-
-                                    <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
-                                        <Grid>
-                                            <TextBlock Text="🖼️" FontSize="52" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4"/>
-                                            <Border Background="#80000000" CornerRadius="4" Padding="6,2" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
-                                                <TextBlock Text="2024" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
-                                            </Border>
-                                        </Grid>
-                                    </Border>
-
-                                    <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
-                                        <StackPanel>
-                                            <TextBlock Text="Mountain Sunset" Foreground="White" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
-                                            <StackPanel Margin="0,4,0,0">
-                                                <TextBlock Text="Photography" Foreground="{StaticResource TextMuted}" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
-                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                                                    <TextBlock Text="3840x2160" Foreground="{StaticResource TextMuted}" FontSize="10"/>
-                                                    <TextBlock Text=" · " Foreground="{StaticResource BorderColor}" FontSize="10"/>
-                                                    <TextBlock Text="4.2 MB" Foreground="{StaticResource TextMuted}" FontSize="10"/>
-                                                </StackPanel>
-                                                <Border Height="2" Background="#FF333333" CornerRadius="1" Margin="0,6,0,0">
-                                                    <Border Width="100" Background="#FF4CAF50" CornerRadius="1"/>
-                                                </Border>
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
-                            </Border>
-
-                            <!-- КАРТКА 5 -->
-                            <Border Style="{StaticResource MediaCardStyle}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-
-                                    <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
-                                        <Grid>
-                                            <TextBlock Text="📄" FontSize="52" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4"/>
-                                            <Border Background="#FFC05A5A" CornerRadius="4" Padding="6,2" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right">
-                                                <TextBlock Text="4.8" Foreground="White" FontSize="11" FontWeight="Bold"/>
-                                            </Border>
-                                            <Border Background="#80000000" CornerRadius="4" Padding="6,2" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
-                                                <TextBlock Text="2023" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
-                                            </Border>
-                                        </Grid>
-                                    </Border>
-
-                                    <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
-                                        <StackPanel>
-                                            <TextBlock Text="C# Programming Guide" Foreground="White" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
-                                            <StackPanel Margin="0,4,0,0">
-                                                <TextBlock Text="Microsoft" Foreground="{StaticResource TextMuted}" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
-                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                                                    <TextBlock Text="850 pages" Foreground="{StaticResource TextMuted}" FontSize="10"/>
-                                                    <TextBlock Text=" · " Foreground="{StaticResource BorderColor}" FontSize="10"/>
-                                                    <TextBlock Text="📄 PDF" Foreground="{StaticResource TextMuted}" FontSize="10"/>
-                                                </StackPanel>
-                                                <Border Height="2" Background="#FF333333" CornerRadius="1" Margin="0,6,0,0">
-                                                    <Border Width="60" Background="#FF2196F3" CornerRadius="1"/>
-                                                </Border>
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
-                            </Border>
-
-                            <!-- КАРТКА 6 -->
-                            <Border Style="{StaticResource MediaCardStyle}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-
-                                    <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
-                                        <Grid>
-                                            <TextBlock Text="🎬" FontSize="52" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4"/>
-                                            <Border Background="#FFC05A5A" CornerRadius="4" Padding="6,2" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right">
-                                                <TextBlock Text="9.1" Foreground="White" FontSize="11" FontWeight="Bold"/>
-                                            </Border>
-                                            <Border Background="#80000000" CornerRadius="4" Padding="6,2" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
-                                                <TextBlock Text="1994" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
-                                            </Border>
-                                        </Grid>
-                                    </Border>
-
-                                    <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
-                                        <StackPanel>
-                                            <TextBlock Text="The Shawshank Redemption" Foreground="White" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
-                                            <StackPanel Margin="0,4,0,0">
-                                                <TextBlock Text="Frank Darabont" Foreground="{StaticResource TextMuted}" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="165"/>
-                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                                                    <TextBlock Text="2h 22m" Foreground="{StaticResource TextMuted}" FontSize="10"/>
-                                                    <TextBlock Text=" · " Foreground="{StaticResource BorderColor}" FontSize="10"/>
-                                                    <TextBlock Text="🎬 Drama" Foreground="{StaticResource TextMuted}" FontSize="10"/>
-                                                </StackPanel>
-                                                <Border Height="2" Background="#FF333333" CornerRadius="1" Margin="0,6,0,0">
-                                                    <Border Width="85" Background="{StaticResource AccentColor}" CornerRadius="1"/>
-                                                </Border>
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
-                            </Border>
-                        </WrapPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </ScrollViewer>
 
-                    <!-- Нижня панель -->
+                    <!-- Нижня панель (статус) -->
                     <Border Grid.Row="2" 
                             Background="{StaticResource BackgroundSecondary}" 
                             BorderBrush="{StaticResource BorderColor}" 
@@ -828,13 +605,11 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="Showing" Foreground="{StaticResource TextMuted}" FontSize="12"/>
-                                <TextBlock Text=" 1-12 " Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="SemiBold"/>
-                                <TextBlock Text="of" Foreground="{StaticResource TextMuted}" FontSize="12"/>
-                                <TextBlock Text=" 124 " Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="SemiBold"/>
-                                <TextBlock Text="items" Foreground="{StaticResource TextMuted}" FontSize="12"/>
-                            </StackPanel>
+                            <TextBlock Grid.Column="0" 
+                                       Text="{Binding StatusText}" 
+                                       Foreground="{StaticResource TextSecondary}" 
+                                       FontSize="12"
+                                       VerticalAlignment="Center"/>
 
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                 <Button Content="◀" Style="{StaticResource IconButtonStyle}" Width="32" Height="32" FontSize="12" Margin="0,0,4,0"/>

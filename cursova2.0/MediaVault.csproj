@@ -10,7 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Converters\" />
     <Folder Include="Views\" />
   </ItemGroup>
 

@@ -9,6 +9,8 @@ namespace MediaVault.Models
 
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string FilePath { get; set; }
+
+        public string FileName { get; set; }
         public string Title { get; set; }
         public string Author { get; set; }      
         public int? Year { get; set; }

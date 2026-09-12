@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MediaVault"
         xmlns:converters="clr-namespace:MediaVault.Converters"
+        xmlns:views="clr-namespace:MediaVault.Views"
         mc:Ignorable="d"
         Title="MediaVault" 
         WindowState="Normal"
@@ -538,7 +539,9 @@
 
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource MediaCardStyle}">
+                                    <Border Style="{StaticResource MediaCardStyle}" 
+                                      MouseLeftButtonUp="Card_Click"
+                                      Tag="{Binding}">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="*"/>

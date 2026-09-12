@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using MediaVault.Services;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -9,13 +10,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace cursova2._0
+namespace MediaVault
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
+
+        private readonly FileScanner _scanner = new FileScanner();
         public MainWindow()
         {
             InitializeComponent();
@@ -46,6 +46,31 @@ namespace cursova2._0
         {
             Button button = sender as Button;
             string category = (button.Content as Grid).Children.OfType<TextBlock>().FirstOrDefault()?.Text;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private async void AddFolder_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFolderDialog
+            {
+                Title = "Виберіть папку з медіафайлами"
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            string folderPath = dialog.FolderName;
+
+            var files = await _scanner.ScanFolderAsync(folderPath);
+
+            MessageBox.Show($"Знайдено {files.Count} файлів у папці:\n{folderPath}",
+                            "Сканування завершено",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
         }
     }
 }

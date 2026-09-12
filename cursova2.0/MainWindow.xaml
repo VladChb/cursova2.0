@@ -1,9 +1,9 @@
-﻿<Window x:Class="cursova2._0.MainWindow"
+﻿<Window x:Class="MediaVault.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:cursova2._0"
+        xmlns:local="clr-namespace:MediaVault"
         mc:Ignorable="d"
         Title="MediaVault" 
         WindowState="Normal"
@@ -569,7 +569,7 @@
                                 </Grid>
                             </Border>
 
-                            <Button Grid.Column="1" Content="📁 Add Folder" Style="{StaticResource PrimaryButtonStyle}" Margin="12,0,0,0"/>
+                            <Button Grid.Column="1" Content="📁 Add Folder" Style="{StaticResource PrimaryButtonStyle}" Margin="12,0,0,0" Click="AddFolder_Click"/>
                             <Button Grid.Column="2" Content="↻" Style="{StaticResource IconButtonStyle}" Margin="8,0,0,0"/>
                         </Grid>
                     </Border>

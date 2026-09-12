@@ -14,9 +14,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\col\\cursova4\\cursova2.0\\cursova2.0\\cursova2.0.csproj",
-      "projectName": "cursova2.0",
-      "projectPath": "E:\\col\\cursova4\\cursova2.0\\cursova2.0\\cursova2.0.csproj",
+      "projectUniqueName": "E:\\col\\cursova4\\cursova2.0\\cursova2.0\\MediaVault.csproj",
+      "projectName": "MediaVault",
+      "projectPath": "E:\\col\\cursova4\\cursova2.0\\cursova2.0\\MediaVault.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
       "outputPath": "E:\\col\\cursova4\\cursova2.0\\cursova2.0\\obj\\",
       "projectStyle": "PackageReference",

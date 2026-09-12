@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace cursova2._0.Models
+namespace MediaVault.Models
 {
     public class SecurityItem
     {

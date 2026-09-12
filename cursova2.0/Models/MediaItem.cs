@@ -29,6 +29,34 @@ namespace MediaVault.Models
 
         
         public bool IsIdentified { get; set; } = true;
+    
+
+      public string TypeIcon
+        {
+            get
+            {
+                return Type switch
+                {
+                    MediaType.Film => "🎬",
+                    MediaType.Book => "📚",
+                    MediaType.Music => "🎵",
+                    MediaType.Image => "🖼️",
+                    MediaType.Document => "📄",
+                    _ => "📁"
+                };
+            }
+        }
+
+        public string FormattedSize
+        {
+            get
+            {
+                if (FileSize < 1024) return $"{FileSize} B";
+                if (FileSize < 1024 * 1024) return $"{FileSize / 1024.0:F1} KB";
+                if (FileSize < 1024L * 1024 * 1024) return $"{FileSize / (1024.0 * 1024):F1} MB";
+                return $"{FileSize / (1024.0 * 1024 * 1024):F2} GB";
+            }
+        }
     }
 
     public enum MediaType

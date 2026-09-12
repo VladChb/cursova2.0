@@ -278,6 +278,50 @@
             </Style.Triggers>
         </Style>
 
+        <!-- СТИЛЬ КАТЕГОРІЙ ЯК КНОПКИ -->
+        <Style x:Key="CategoryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="12,9"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                        CornerRadius="8" 
+                        Margin="0">
+                            <ContentPresenter HorizontalAlignment="Left" 
+                                      VerticalAlignment="Center"
+                                      Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#30FFFFFF"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#40FFFFFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- СТИЛЬ ВИБРАНОЇ КАТЕГОРІЇ (для кнопки) -->
+        <Style x:Key="SelectedCategoryButtonStyle" TargetType="Button" BasedOn="{StaticResource CategoryButtonStyle}">
+            <Setter Property="Background" Value="#25FFFFFF"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AccentColor}"/>
+            <Setter Property="BorderThickness" Value="0,0,3,0"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#35FFFFFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <!-- СТИЛЬ ПОЛЯ ПОШУКУ -->
         <Style x:Key="SearchTextBoxStyle" TargetType="TextBox">
             <Setter Property="Background" Value="#FF333333"/>
@@ -347,10 +391,10 @@
 
                 <!-- ЛІВА ПАНЕЛЬ -->
                 <Border Grid.Column="0" 
-                        Background="{StaticResource BackgroundSecondary}" 
-                        BorderBrush="{StaticResource BorderColor}" 
-                        BorderThickness="0,0,1,0"
-                        Padding="0,12,0,12">
+        Background="{StaticResource BackgroundSecondary}" 
+        BorderBrush="{StaticResource BorderColor}" 
+        BorderThickness="0,0,1,0"
+        Padding="0,12,0,12">
 
                     <Grid Margin="0,8,0,8">
                         <Grid.RowDefinitions>
@@ -400,84 +444,93 @@
                             </Grid>
                         </Border>
 
-                        <!-- Категорії -->
+                        <!-- Категорії як кнопки -->
                         <StackPanel Grid.Row="2" Margin="12,0,12,0">
                             <TextBlock Text="CATEGORIES" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="Bold" Margin="8,0,0,10"/>
 
-                            <Border Style="{StaticResource SelectedCategoryStyle}">
+                            <!-- All Files (вибрано) -->
+                            <Button Style="{StaticResource CategoryButtonStyle}" 
+                    IsEnabled="True"
+                    Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="📂 All Files" Foreground="White" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Style="{StaticResource BadgeStyle}" Margin="0,0,8,0">
+                                    <Border Style="{StaticResource BadgeStyle}" Margin="103,0,0,0" HorizontalAlignment="Left" Height="19" VerticalAlignment="Center">
                                         <TextBlock Text="124" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
-                            </Border>
+                            </Button>
 
-                            <Border Style="{StaticResource CategoryItemStyle}">
+                            <!-- Films -->
+                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="🎬 Films" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="106,0,0,0" HorizontalAlignment="Left">
                                         <TextBlock Text="42" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
-                            </Border>
+                            </Button>
 
-                            <Border Style="{StaticResource CategoryItemStyle}">
+                            <!-- Books -->
+                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="📖 Books" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="106,0,0,0" HorizontalAlignment="Left">
                                         <TextBlock Text="82" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
-                            </Border>
+                            </Button>
 
-                            <Border Style="{StaticResource CategoryItemStyle}">
+                            <!-- Music -->
+                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="🎵 Music" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="106,0,0,0" HorizontalAlignment="Left">
                                         <TextBlock Text="12" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
-                            </Border>
+                            </Button>
 
-                            <Border Style="{StaticResource CategoryItemStyle}">
+                            <!-- Images -->
+                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="🖼️ Images" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="106,0,0,0" HorizontalAlignment="Left">
                                         <TextBlock Text="18" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
-                            </Border>
+                            </Button>
 
-                            <Border Style="{StaticResource CategoryItemStyle}">
+                            <!-- Documents -->
+                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="📄 Documents" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="106,0,0,0" HorizontalAlignment="Left">
                                         <TextBlock Text="15" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
-                            </Border>
+                            </Button>
 
                             <Border Height="1" Background="{StaticResource BorderColor}" Margin="8,16,8,16"/>
 
-                            <Border Style="{StaticResource CategoryItemStyle}">
+                            <!-- Favorites -->
+                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="⭐ Favorites" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FFB8860B" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                    <Border Background="#FFB8860B" CornerRadius="10" Padding="6,1" Margin="106,0,9,0" HorizontalAlignment="Left">
                                         <TextBlock Text="23" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
-                            </Border>
+                            </Button>
                         </StackPanel>
 
+                        <!-- Налаштування -->
                         <StackPanel Grid.Row="3" Margin="12,0,12,16">
-                            <Border Style="{StaticResource CategoryItemStyle}" Margin="6,2">
+                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
                                 <TextBlock Text="⚙️ Settings" Foreground="{StaticResource TextMuted}" FontSize="14" FontWeight="SemiBold"/>
-                            </Border>
-                            <Border Style="{StaticResource CategoryItemStyle}" Margin="6,2">
+                            </Button>
+                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
                                 <TextBlock Text="❓ Help" Foreground="{StaticResource TextMuted}" FontSize="14" FontWeight="SemiBold"/>
-                            </Border>
-                            <TextBlock Text="v2.0.0" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="12,16,0,0" Opacity="0.5"/>
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </Border>

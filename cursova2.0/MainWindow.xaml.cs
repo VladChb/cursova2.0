@@ -42,5 +42,10 @@ namespace cursova2._0
         {
             this.Close();
         }
+        private void Category_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            string category = (button.Content as Grid).Children.OfType<TextBlock>().FirstOrDefault()?.Text;
+        }
     }
 }

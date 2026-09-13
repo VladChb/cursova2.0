@@ -17,6 +17,20 @@ namespace MediaVault
 
         }
 
+        private void PageSizeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox combo && combo.SelectedItem is ComboBoxItem item)
+            {
+                if (int.TryParse(item.Tag?.ToString(), out int size))
+                {
+                    if (DataContext is MainViewModel vm)
+                    {
+                        vm.PageSize = size;
+                    }
+                }
+            }
+        }
+
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.OriginalSource is Button ||

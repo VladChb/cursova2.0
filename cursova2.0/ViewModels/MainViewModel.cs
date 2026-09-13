@@ -30,14 +30,16 @@ namespace MediaVault.ViewModels
         public RelayCommand SortCommand { get; }
 
         private string _searchText = string.Empty;
-
         public string SearchText
         {
             get => _searchText;
             set
             {
                 if (SetProperty(ref _searchText, value))
+                {
+                    CurrentPage = 1;
                     ApplyFilter();
+                }
             }
         }
 
@@ -90,13 +92,7 @@ namespace MediaVault.ViewModels
                     ApplyFilter();
             }
         }
-        private void SortItems(object parameter)
-        {
-            if (parameter is string sortBy)
-            {
-                SortBy = sortBy;
-            }
-        }
+      
 
         public int TotalCount => AllMediaItems.Count;
         public int FilmCount => AllMediaItems.Count(x => x.Type == MediaType.Film);
@@ -118,6 +114,40 @@ namespace MediaVault.ViewModels
             }
         }
 
+        private void NextPage()
+        {
+            if (CanGoNext)
+                CurrentPage++;
+        }
+
+        private void PrevPage()
+        {
+            if (CanGoPrev)
+                CurrentPage--;
+        }
+
+        private void GoToPage(object parameter)
+        {
+            if (parameter is int page)
+            {
+                if (page >= 1 && page <= TotalPages)
+                    CurrentPage = page;
+            }
+            else if (parameter is string pageStr && int.TryParse(pageStr, out int pageNum))
+            {
+                if (pageNum >= 1 && pageNum <= TotalPages)
+                    CurrentPage = pageNum;
+            }
+        }
+
+        private void ChangePageSize(object parameter)
+        {
+            if (parameter is string sizeStr && int.TryParse(sizeStr, out int sizeNum))
+            {
+                PageSize = sizeNum;
+            }
+        }
+
         public RelayCommand AddFolderCommand { get; }
         public RelayCommand SaveCommand { get; }
         public RelayCommand ClearCommand { get; }
@@ -126,7 +156,6 @@ namespace MediaVault.ViewModels
  
         public MainViewModel()
         {
-            SortCommand = new RelayCommand(SortItems);
             _scanner = new FileScanner();
             _storage = new DataStorageService();
             _cleaner = new FileNameCleaner();
@@ -136,6 +165,11 @@ namespace MediaVault.ViewModels
             ClearCommand = new RelayCommand(async _ => await ClearAsync());
             FilterCommand = new RelayCommand(FilterByType);
             SortCommand = new RelayCommand(SortItems);
+
+            NextPageCommand = new RelayCommand(_ => NextPage(), _ => CanGoNext);
+            PrevPageCommand = new RelayCommand(_ => PrevPage(), _ => CanGoPrev);
+            GoToPageCommand = new RelayCommand(GoToPage);
+            ChangePageSizeCommand = new RelayCommand(ChangePageSize);
 
             _ = LoadSavedCollectionAsync();
         }
@@ -150,6 +184,7 @@ namespace MediaVault.ViewModels
                 foreach (var item in saved)
                     AllMediaItems.Add(item);
 
+                CurrentPage = 1;
                 ApplyFilter();
                 UpdateStats();
                 StatusText = $"Завантажено {saved.Count} файлів з колекції";
@@ -276,12 +311,17 @@ namespace MediaVault.ViewModels
 
         private void FilterByType(object parameter)
         {
+            CurrentPage = 1;
+
             if (parameter is string typeStr)
             {
                 if (typeStr == "Favorite")
                 {
                     FilteredMediaItems.Clear();
-                    foreach (var item in AllMediaItems.Where(x => x.IsFavorite))
+                    var favorites = AllMediaItems.Where(x => x.IsFavorite).ToList();
+                    TotalFilteredCount = favorites.Count;
+
+                    foreach (var item in favorites.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
                         FilteredMediaItems.Add(item);
                     return;
                 }
@@ -296,6 +336,14 @@ namespace MediaVault.ViewModels
                     _ => MediaType.Unknown
                 };
             }
+        }
+
+        private void SortItems(object parameter)
+        {
+            CurrentPage = 1; 
+
+            if (parameter is string sortBy)
+                SortBy = sortBy;
         }
 
         private void ApplyFilter()
@@ -327,11 +375,21 @@ namespace MediaVault.ViewModels
                 _ => query.OrderBy(x => x.Title)
             };
 
+            TotalFilteredCount = query.Count();
+
+            var pagedQuery = query
+                .Skip((CurrentPage - 1) * PageSize)
+                .Take(PageSize);
+
             FilteredMediaItems.Clear();
-            foreach (var item in query)
+            foreach (var item in pagedQuery)
                 FilteredMediaItems.Add(item);
 
             OnPropertyChanged(nameof(IsEmpty));
+            OnPropertyChanged(nameof(PageInfo));
+            OnPropertyChanged(nameof(TotalPages));
+            OnPropertyChanged(nameof(CanGoNext));
+            OnPropertyChanged(nameof(CanGoPrev));
         }
 
         public async Task SaveChangesAsync()
@@ -362,5 +420,66 @@ namespace MediaVault.ViewModels
             OnPropertyChanged(nameof(FavoriteCount));
             OnPropertyChanged(nameof(TotalSize));
         }
+
+        private int _currentPage = 1;
+        public int CurrentPage
+        {
+            get => _currentPage;
+            set
+            {
+                if (SetProperty(ref _currentPage, value))
+                {
+                    ApplyFilter();
+                    OnPropertyChanged(nameof(PageInfo));
+                    OnPropertyChanged(nameof(CanGoNext));
+                    OnPropertyChanged(nameof(CanGoPrev));
+                }
+            }
+        }
+
+        private int _pageSize = 30;
+        public int PageSize
+        {
+            get => _pageSize;
+            set
+            {
+                if (SetProperty(ref _pageSize, value))
+                {
+                    CurrentPage = 1;
+                    ApplyFilter();
+                    OnPropertyChanged(nameof(PageInfo));
+                    OnPropertyChanged(nameof(TotalPages));
+                }
+            }
+        }
+
+        private int _totalFilteredCount;
+        public int TotalFilteredCount
+        {
+            get => _totalFilteredCount;
+            set
+            {
+                if (SetProperty(ref _totalFilteredCount, value))
+                {
+                    OnPropertyChanged(nameof(TotalPages));
+                    OnPropertyChanged(nameof(PageInfo));
+                    OnPropertyChanged(nameof(CanGoNext));
+                }
+            }
+        }
+
+        public int TotalPages => TotalFilteredCount == 0
+            ? 1
+            : (int)Math.Ceiling((double)TotalFilteredCount / PageSize);
+
+        public bool CanGoNext => CurrentPage < TotalPages;
+        public bool CanGoPrev => CurrentPage > 1;
+
+        public string PageInfo => $"Сторінка {CurrentPage} з {TotalPages}";
+
+        public RelayCommand NextPageCommand { get; }
+        public RelayCommand PrevPageCommand { get; }
+        public RelayCommand GoToPageCommand { get; }
+        public RelayCommand ChangePageSizeCommand { get; }
     }
 }

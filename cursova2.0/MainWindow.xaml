@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MediaVault"
         xmlns:converters="clr-namespace:MediaVault.Converters"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="MediaVault" 
         WindowState="Normal"
@@ -16,6 +17,15 @@
         Background="Transparent"
         WindowStyle="None"
         AllowsTransparency="True">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome 
+            CaptionHeight="44"
+            ResizeBorderThickness="12"
+            GlassFrameThickness="0"
+            CornerRadius="0"
+            UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
 
     <Window.Resources>
         <!-- КОНВЕРТЕРИ -->
@@ -285,7 +295,8 @@
     <Border Background="{StaticResource BackgroundPrimary}" 
             CornerRadius="12"
             BorderBrush="{StaticResource BorderColor}"
-            BorderThickness="1">
+            BorderThickness="1"
+            Margin="10">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="44"/>
@@ -314,9 +325,18 @@
 
                     <!-- Кнопки керування вікном -->
                     <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,8,0">
-                        <Button Content="─" Style="{StaticResource WindowButtonStyle}" Click="MinimizeWindow_Click"/>
-                        <Button Content="☐" Style="{StaticResource WindowButtonStyle}" Click="MaximizeWindow_Click"/>
-                        <Button Content="✕" Style="{StaticResource CloseButtonStyle}" Click="CloseWindow_Click"/>
+                        <Button Content="─" 
+                                Style="{StaticResource WindowButtonStyle}" 
+                                Click="MinimizeWindow_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button Content="☐" 
+                                Style="{StaticResource WindowButtonStyle}" 
+                                Click="MaximizeWindow_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button Content="✕" 
+                                Style="{StaticResource CloseButtonStyle}" 
+                                Click="CloseWindow_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -395,7 +415,7 @@
                                     Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="📂 All Files" Foreground="White" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Style="{StaticResource BadgeStyle}" Margin="0,0,8,0">
+                                    <Border Style="{StaticResource BadgeStyle}" Margin="120,0,8,0">
                                         <TextBlock Text="{Binding TotalCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
@@ -408,7 +428,7 @@
                                     Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="🎬 Films" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="120,0,8,0" HorizontalAlignment="Right">
                                         <TextBlock Text="{Binding FilmCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
@@ -421,7 +441,7 @@
                                     Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="📖 Books" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="120,0,8,0" HorizontalAlignment="Right">
                                         <TextBlock Text="{Binding BookCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
@@ -434,7 +454,7 @@
                                     Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="🎵 Music" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="120,0,8,0" HorizontalAlignment="Right">
                                         <TextBlock Text="{Binding MusicCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
@@ -447,7 +467,7 @@
                                     Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="🖼️ Images" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="120,0,8,0" HorizontalAlignment="Right">
                                         <TextBlock Text="{Binding ImageCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
@@ -460,7 +480,7 @@
                                     Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="📄 Documents" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="120,0,8,0" HorizontalAlignment="Right">
                                         <TextBlock Text="{Binding DocumentCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>
@@ -475,7 +495,7 @@
                                     Margin="0,0,0,2">
                                 <Grid>
                                     <TextBlock Text="⭐ Favorites" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FFB8860B" CornerRadius="10" Padding="6,1" Margin="0,0,8,0" HorizontalAlignment="Right">
+                                    <Border Background="#FFB8860B" CornerRadius="10" Padding="6,1" Margin="120,0,8,0" HorizontalAlignment="Right">
                                         <TextBlock Text="{Binding FavoriteCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
                                     </Border>
                                 </Grid>

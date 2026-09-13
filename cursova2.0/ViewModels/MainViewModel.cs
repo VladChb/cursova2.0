@@ -15,7 +15,11 @@ namespace MediaVault.ViewModels
     public class MainViewModel : ObservableObject
     {
         private readonly FileScanner _scanner;
+
+        public bool IsEmpty => FilteredMediaItems.Count == 0;
         private readonly DataStorageService _storage;
+
+        private readonly FileNameCleaner _cleaner;
 
         public ObservableCollection<MediaItem> AllMediaItems { get; set; } = new();
 
@@ -23,8 +27,10 @@ namespace MediaVault.ViewModels
 
         public ObservableCollection<MediaItem> FilteredMediaItems { get; set; } = new();
 
+        public RelayCommand SortCommand { get; }
 
         private string _searchText = string.Empty;
+
         public string SearchText
         {
             get => _searchText;
@@ -60,11 +66,36 @@ namespace MediaVault.ViewModels
             set => SetProperty(ref _isScanning, value);
         }
 
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set => SetProperty(ref _isLoading, value);
+        }
+
         private int _scanProgress;
         public int ScanProgress
         {
             get => _scanProgress;
             set => SetProperty(ref _scanProgress, value);
+        }
+
+        private string _sortBy = "Title";
+        public string SortBy
+        {
+            get => _sortBy;
+            set
+            {
+                if (SetProperty(ref _sortBy, value))
+                    ApplyFilter();
+            }
+        }
+        private void SortItems(object parameter)
+        {
+            if (parameter is string sortBy)
+            {
+                SortBy = sortBy;
+            }
         }
 
         public int TotalCount => AllMediaItems.Count;
@@ -95,13 +126,16 @@ namespace MediaVault.ViewModels
  
         public MainViewModel()
         {
+            SortCommand = new RelayCommand(SortItems);
             _scanner = new FileScanner();
             _storage = new DataStorageService();
+            _cleaner = new FileNameCleaner();
 
             AddFolderCommand = new RelayCommand(async _ => await AddFolderAsync());
             SaveCommand = new RelayCommand(async _ => await SaveAsync());
             ClearCommand = new RelayCommand(async _ => await ClearAsync());
             FilterCommand = new RelayCommand(FilterByType);
+            SortCommand = new RelayCommand(SortItems);
 
             _ = LoadSavedCollectionAsync();
         }
@@ -135,12 +169,24 @@ namespace MediaVault.ViewModels
             string folderPath = dialog.FolderName;
 
             IsScanning = true;
+            IsLoading = true;
             StatusText = "Сканування...";
             ScanProgress = 0;
 
             try
             {
-                var files = await _scanner.ScanFolderAsync(folderPath);
+                var dispatcher = System.Windows.Application.Current.Dispatcher;
+
+                var files = await _scanner.ScanFolderAsync(folderPath, (percent) =>
+                {
+                    dispatcher.Invoke(() =>
+                    {
+                        ScanProgress = percent;
+                        StatusText = $"Сканування... {percent}%";
+                    }, System.Windows.Threading.DispatcherPriority.Background);
+                });
+
+                StatusText = "Додавання файлів...";
 
                 int added = 0;
                 int skipped = 0;
@@ -168,20 +214,21 @@ namespace MediaVault.ViewModels
             catch (Exception ex)
             {
                 StatusText = $"Помилка: {ex.Message}";
-                MessageBox.Show($"Помилка сканування:\n{ex.Message}",
-                                "Помилка",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
             }
             finally
             {
                 IsScanning = false;
+                IsLoading = false;
+                ScanProgress = 0;
             }
         }
 
         private MediaItem CreateMediaItem(string filePath)
         {
             var fileInfo = new FileInfo(filePath);
+
+            string cleanTitle = _cleaner.CleanFileName(filePath);
+            int? year = _cleaner.ExtractYear(filePath);
 
             return new MediaItem
             {
@@ -190,7 +237,8 @@ namespace MediaVault.ViewModels
                 FileExtension = fileInfo.Extension.ToLowerInvariant(),
                 FileSize = fileInfo.Length,
                 Type = _scanner.GetMediaType(filePath),
-                Title = Path.GetFileNameWithoutExtension(filePath),
+                Title = cleanTitle ?? Path.GetFileNameWithoutExtension(filePath),
+                Year = year,
                 DateAdded = DateTime.Now
             };
         }
@@ -267,9 +315,23 @@ namespace MediaVault.ViewModels
                     (x.Genre?.ToLowerInvariant().Contains(search) ?? false));
             }
 
+            query = SortBy switch
+            {
+                "Title" => query.OrderBy(x => x.Title),
+                "TitleDesc" => query.OrderByDescending(x => x.Title),
+                "Size" => query.OrderByDescending(x => x.FileSize),
+                "SizeAsc" => query.OrderBy(x => x.FileSize),
+                "Date" => query.OrderByDescending(x => x.DateAdded),
+                "DateAsc" => query.OrderBy(x => x.DateAdded),
+                "Rating" => query.OrderByDescending(x => x.Rating),
+                _ => query.OrderBy(x => x.Title)
+            };
+
             FilteredMediaItems.Clear();
             foreach (var item in query)
                 FilteredMediaItems.Add(item);
+
+            OnPropertyChanged(nameof(IsEmpty));
         }
 
         public async Task SaveChangesAsync()

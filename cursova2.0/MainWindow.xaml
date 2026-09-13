@@ -289,6 +289,17 @@
             <Setter Property="Margin" Value="8,0,0,0"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
         </Style>
+
+        <!-- СТИЛЬ COMBOBOX -->
+        <Style x:Key="SortComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="#FF333333"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Width" Value="150"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
     </Window.Resources>
 
     <!-- ГОЛОВНИЙ КОНТЕЙНЕР З ЗАОКРУГЛЕНИМИ КУТАМИ -->
@@ -524,132 +535,199 @@
 
                     <!-- Верхня панель -->
                     <Border Grid.Row="0" 
-                            Background="{StaticResource BackgroundSecondary}" 
-                            BorderBrush="{StaticResource BorderColor}" 
-                            BorderThickness="0,0,0,1"
-                            Padding="20,12,20,12">
-                        <DockPanel LastChildFill="True">
-                            <!-- Кнопки праворуч -->
-                            <StackPanel DockPanel.Dock="Right" 
-                                        Orientation="Horizontal" 
-                                        Margin="12,0,0,0">
-                                <Button Content="📁 Add Folder" 
-                                        Style="{StaticResource PrimaryButtonStyle}"
-                                        Command="{Binding AddFolderCommand}"
-                                        MinWidth="130"
-                                        Margin="0,0,8,0"/>
-                                <Button Content="↻" 
-                                        Style="{StaticResource IconButtonStyle}"
-                                        Command="{Binding SaveCommand}"
-                                        ToolTip="Зберегти"
-                                        Margin="0,0,8,0"/>
-                                <Button Content="🗑️" 
-                                        Style="{StaticResource IconButtonStyle}"
-                                        Command="{Binding ClearCommand}"
-                                        ToolTip="Очистити колекцію"/>
-                            </StackPanel>
+        Background="{StaticResource BackgroundSecondary}" 
+        BorderBrush="{StaticResource BorderColor}" 
+        BorderThickness="0,0,0,1"
+        Padding="20,12,20,12">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                            <!-- Пошук -->
-                            <Border Background="#FF333333" 
-                                    CornerRadius="20" 
-                                    MaxWidth="480" 
-                                    HorizontalAlignment="Left"
-                                    MinWidth="200">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
+                            <!-- Рядок 1: Пошук + ComboBox + Кнопки -->
+                            <DockPanel Grid.Row="0" LastChildFill="True">
+                                <!-- Кнопки праворуч -->
+                                <StackPanel DockPanel.Dock="Right" 
+                        Orientation="Horizontal" 
+                        Margin="12,0,0,0">
+                                    <Button Content="📁 Add Folder" 
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Command="{Binding AddFolderCommand}"
+                        MinWidth="130"
+                        Margin="0,0,8,0"/>
+                                    <Button Content="↻" 
+                        Style="{StaticResource IconButtonStyle}"
+                        Command="{Binding SaveCommand}"
+                        ToolTip="Зберегти"
+                        Margin="0,0,8,0"/>
+                                    <Button Content="🗑️" 
+                        Style="{StaticResource IconButtonStyle}"
+                        Command="{Binding ClearCommand}"
+                        ToolTip="Очистити колекцію"/>
+                                </StackPanel>
 
-                                    <TextBox Grid.Column="0" 
-                                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
-                                             Style="{StaticResource SearchTextBoxStyle}"/>
+                                <!-- ComboBox сортування -->
+                                <ComboBox DockPanel.Dock="Right"
+                      Width="160"
+                      Height="38"
+                      Background="#FF333333"
+                      Foreground="White"
+                      BorderThickness="0"
+                      Margin="12,0,0,0"
+                      SelectedValue="{Binding SortBy}"
+                      SelectedValuePath="Tag">
+                                    <ComboBoxItem Content="Назва (А-Я)" Tag="Title"/>
+                                    <ComboBoxItem Content="Назва (Я-А)" Tag="TitleDesc"/>
+                                    <ComboBoxItem Content="Розмір ↓" Tag="Size"/>
+                                    <ComboBoxItem Content="Розмір ↑" Tag="SizeAsc"/>
+                                    <ComboBoxItem Content="Дата ↓" Tag="Date"/>
+                                    <ComboBoxItem Content="Дата ↑" Tag="DateAsc"/>
+                                    <ComboBoxItem Content="Рейтинг ↓" Tag="Rating"/>
+                                </ComboBox>
 
-                                    <TextBlock Grid.Column="1" 
-                                               Text="⌘" 
-                                               FontSize="12" 
-                                               Foreground="{StaticResource TextMuted}" 
-                                               VerticalAlignment="Center" 
-                                               Margin="0,0,14,0" 
-                                               Opacity="0.5"/>
-                                </Grid>
-                            </Border>
-                        </DockPanel>
+                                <!-- Пошук -->
+                                <Border Background="#FF333333" 
+                    CornerRadius="20" 
+                    MaxWidth="480" 
+                    HorizontalAlignment="Left"
+                    MinWidth="200">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBox Grid.Column="0" 
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource SearchTextBoxStyle}"/>
+
+                                        <TextBlock Grid.Column="1" 
+                               Text="⌘" 
+                               FontSize="12" 
+                               Foreground="{StaticResource TextMuted}" 
+                               VerticalAlignment="Center" 
+                               Margin="0,0,14,0" 
+                               Opacity="0.5"/>
+                                    </Grid>
+                                </Border>
+                            </DockPanel>
+
+                            <!-- Рядок 2: Прогрес-бар (з'являється тільки під час сканування) -->
+                            <ProgressBar Grid.Row="1" 
+                     Height="4"
+                     Value="{Binding ScanProgress}"
+                     Maximum="100"
+                     Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                     Margin="0,10,0,0"
+                     Foreground="{StaticResource AccentColor}"
+                     Background="#FF333333"
+                     BorderThickness="0"/>
+                        </Grid>
                     </Border>
 
-                    <!-- КАРТКИ -->
-                    <ScrollViewer Grid.Row="1" 
-                                  Margin="12,12,12,6" 
-                                  Background="Transparent"
-                                  HorizontalScrollBarVisibility="Disabled" 
-                                  VerticalScrollBarVisibility="Auto"
-                                  Padding="4">
+                    <!-- КАРТКИ + ПОРОЖНІЙ СТАН -->
+                    <Grid Grid.Row="1">
+                        <!-- Порожній стан -->
+                        <StackPanel HorizontalAlignment="Center" 
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="📁" FontSize="72" HorizontalAlignment="Center" Opacity="0.3"/>
+                            <TextBlock Text="Колекція порожня" 
+                                       Foreground="{StaticResource TextMuted}" 
+                                       FontSize="18" 
+                                       HorizontalAlignment="Center"
+                                       Margin="0,16,0,8"/>
+                            <TextBlock Text="Натисніть 'Add Folder', щоб додати файли" 
+                                       Foreground="{StaticResource TextMuted}" 
+                                       FontSize="13" 
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
 
-                        <ItemsControl ItemsSource="{Binding FilteredMediaItems}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
+                        <!-- Картки -->
+                        <ScrollViewer Margin="12,12,12,6" 
+                                      Background="Transparent"
+                                      HorizontalScrollBarVisibility="Disabled" 
+                                      VerticalScrollBarVisibility="Auto"
+                                      Padding="4">
 
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Style="{StaticResource MediaCardStyle}"
-                                            MouseLeftButtonUp="Card_Click"
-                                            Tag="{Binding}">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="*"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
+                            <ItemsControl ItemsSource="{Binding FilteredMediaItems}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
 
-                                            <!-- Верхня частина (іконка типу) -->
-                                            <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
-                                                <Grid>
-                                                    <TextBlock Text="{Binding TypeIcon}" 
-                                                               FontSize="52" 
-                                                               HorizontalAlignment="Center" 
-                                                               VerticalAlignment="Center" 
-                                                               Opacity="0.4"/>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource MediaCardStyle}"
+                                                MouseLeftButtonUp="Card_Click"
+                                                Tag="{Binding}">
+                                            <Border.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="▶ Відкрити файл" Click="OpenFile_Click"/>
+                                                    <MenuItem Header="📂 Показати в папці" Click="ShowInFolder_Click"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="⭐ Додати до улюблених" Click="ToggleFavorite_Click"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="🗑️ Видалити з колекції" Click="RemoveFromCollection_Click"/>
+                                                </ContextMenu>
+                                            </Border.ContextMenu>
 
-                                                    <!-- Рейтинг (якщо є) -->
-                                                    <Border Background="#FFC05A5A" 
-                                                            CornerRadius="4" 
-                                                            Padding="6,2" 
-                                                            Margin="10,10,10,0" 
-                                                            VerticalAlignment="Top" 
-                                                            HorizontalAlignment="Right"
-                                                            Visibility="{Binding Rating, Converter={StaticResource RatingToVisibilityConverter}}">
-                                                        <TextBlock Text="{Binding Rating}" 
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <!-- Верхня частина (іконка типу) -->
+                                                <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
+                                                    <Grid>
+                                                        <TextBlock Text="{Binding TypeIcon}" 
+                                                                   FontSize="52" 
+                                                                   HorizontalAlignment="Center" 
+                                                                   VerticalAlignment="Center" 
+                                                                   Opacity="0.4"/>
+
+                                                        <!-- Рейтинг (якщо є) -->
+                                                        <Border Background="#FFC05A5A" 
+                                                                CornerRadius="4" 
+                                                                Padding="6,2" 
+                                                                Margin="10,10,10,0" 
+                                                                VerticalAlignment="Top" 
+                                                                HorizontalAlignment="Right"
+                                                                Visibility="{Binding Rating, Converter={StaticResource RatingToVisibilityConverter}}">
+                                                            <TextBlock Text="{Binding Rating}" 
+                                                                       Foreground="White" 
+                                                                       FontSize="11" 
+                                                                       FontWeight="Bold"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </Border>
+
+                                                <!-- Нижня частина (назва та розмір) -->
+                                                <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Title}" 
                                                                    Foreground="White" 
-                                                                   FontSize="11" 
-                                                                   FontWeight="Bold"/>
-                                                    </Border>
-                                                </Grid>
-                                            </Border>
+                                                                   FontWeight="Bold" 
+                                                                   FontSize="13" 
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   MaxWidth="165"/>
 
-                                            <!-- Нижня частина (назва та розмір) -->
-                                            <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
-                                                <StackPanel>
-                                                    <TextBlock Text="{Binding Title}" 
-                                                               Foreground="White" 
-                                                               FontWeight="Bold" 
-                                                               FontSize="13" 
-                                                               TextTrimming="CharacterEllipsis"
-                                                               MaxWidth="165"/>
-
-                                                    <TextBlock Text="{Binding FormattedSize}" 
-                                                               Foreground="{StaticResource TextMuted}" 
-                                                               FontSize="10" 
-                                                               Margin="0,2,0,0"/>
-                                                </StackPanel>
-                                            </Border>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
+                                                        <TextBlock Text="{Binding FormattedSize}" 
+                                                                   Foreground="{StaticResource TextMuted}" 
+                                                                   FontSize="10" 
+                                                                   Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
 
                     <!-- Нижня панель (статус) -->
                     <Border Grid.Row="2" 

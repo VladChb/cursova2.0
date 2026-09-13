@@ -1,9 +1,10 @@
-﻿using MediaVault.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Threading;
+using MediaVault.Models;
 
 namespace MediaVault.Services
 {
@@ -11,17 +12,14 @@ namespace MediaVault.Services
     {
         private static readonly string[] MediaExtensions =
         {
-            // Відео
             ".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv",
-            // Книги
             ".pdf", ".epub", ".fb2", ".mobi", ".djvu",
-            // Аудіо
             ".mp3", ".flac", ".wav", ".aac", ".ogg",
-            // Зображення
             ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"
         };
 
-        public async Task<List<string>> ScanFolderAsync(string folderPath)
+        public async Task<List<string>> ScanFolderAsync(string folderPath,
+            Action<int> progressCallback = null)
         {
             return await Task.Run(() =>
             {
@@ -34,17 +32,34 @@ namespace MediaVault.Services
                 {
                     var allFoundFiles = Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories);
 
+                    int total = allFoundFiles.Length;
+                    int current = 0;
+
                     foreach (var file in allFoundFiles)
                     {
-                        string ext = Path.GetExtension(file).ToLowerInvariant();
-                        if (MediaExtensions.Contains(ext))
+                        try
                         {
-                            files.Add(file);
+                            string ext = Path.GetExtension(file).ToLowerInvariant();
+                            if (MediaExtensions.Contains(ext))
+                            {
+                                files.Add(file);
+                            }
+                        }
+                        catch { }
+
+                        current++;
+
+                        if (current % 10 == 0 || current == total)
+                        {
+                            int percent = total > 0 ? (int)((double)current / total * 100) : 0;
+                            progressCallback?.Invoke(percent);
                         }
                     }
                 }
-                catch (UnauthorizedAccessException) { }
-                catch (Exception) { }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Помилка: {ex.Message}");
+                }
 
                 return files;
             });

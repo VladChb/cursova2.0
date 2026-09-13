@@ -14,23 +14,17 @@ namespace MediaVault
             DataContext = new MainViewModel();
         }
 
-        private void Card_Click(object sender, MouseButtonEventArgs e)
+        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is FrameworkElement element && element.Tag is MediaItem item)
+            if (e.ClickCount == 2)
             {
-                var detailsWindow = new DetailsWindow(item)
-                {
-                    Owner = this
-                };
-
-                var result = detailsWindow.ShowDialog();
-
-                if (result == true)
-                {
-                    if (DataContext is MainViewModel vm)
-                    {
-                    }
-                }
+                WindowState = WindowState == WindowState.Maximized
+                    ? WindowState.Normal
+                    : WindowState.Maximized;
+            }
+            else
+            {
+                DragMove();
             }
         }
 
@@ -49,6 +43,31 @@ namespace MediaVault
         private void CloseWindow_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        private async void Card_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement element && element.Tag is MediaItem item)
+            {
+                var detailsWindow = new DetailsWindow(item)
+                {
+                    Owner = this
+                };
+
+                var result = detailsWindow.ShowDialog();
+
+                if (DataContext is MainViewModel vm)
+                {
+                    if (detailsWindow.IsDeleted)
+                    {
+                        await vm.RemoveItemAsync(item);
+                    }
+                    else if (result == true)
+                    {
+                        await vm.SaveChangesAsync();
+                    }
+                }
+            }
         }
     }
 }

@@ -8,6 +8,11 @@ namespace MediaVault.Views
     {
         private readonly MediaItem _item;
 
+        /// <summary>
+        /// Чи був файл видалений з колекції
+        /// </summary>
+        public bool IsDeleted { get; private set; }
+
         public DetailsWindow(MediaItem item)
         {
             InitializeComponent();
@@ -17,6 +22,7 @@ namespace MediaVault.Views
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {
+            DialogResult = false;
             Close();
         }
 
@@ -49,6 +55,7 @@ namespace MediaVault.Views
 
             if (result == MessageBoxResult.Yes)
             {
+                IsDeleted = true;
                 DialogResult = true;
                 Close();
             }

@@ -272,6 +272,23 @@ namespace MediaVault.ViewModels
                 FilteredMediaItems.Add(item);
         }
 
+        public async Task SaveChangesAsync()
+        {
+            await SaveAsync();
+            UpdateStats();
+        }
+
+        public async Task RemoveItemAsync(MediaItem item)
+        {
+            if (item == null) return;
+
+            AllMediaItems.Remove(item);
+            FilteredMediaItems.Remove(item);
+
+            await SaveAsync();
+            UpdateStats();
+        }
+
         private void UpdateStats()
         {
             OnPropertyChanged(nameof(TotalCount));

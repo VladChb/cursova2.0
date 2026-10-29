@@ -12,55 +12,57 @@
         ResizeMode="CanResize"
         MinHeight="650" 
         MinWidth="1000"
-        Height="768"
-        Width="1280"
+        Height="800"
+        Width="1400"
         Background="Transparent"
         WindowStyle="None"
         AllowsTransparency="True">
 
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome 
-            CaptionHeight="44"
+            CaptionHeight="52"
             ResizeBorderThickness="12"
             GlassFrameThickness="0"
             CornerRadius="0"
             UseAeroCaptionButtons="False"/>
     </shell:WindowChrome.WindowChrome>
 
+    <Window.InputBindings>
+        <KeyBinding Key="F" Modifiers="Control" Command="{Binding FocusSearchCommand}"/>
+        <KeyBinding Key="O" Modifiers="Control" Command="{Binding AddFolderCommand}"/>
+        <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}"/>
+        <KeyBinding Key="E" Modifiers="Control" Command="{Binding ExportReportCommand}"/>
+        <KeyBinding Key="D" Modifiers="Control" Command="{Binding FindDuplicatesCommand}"/>
+        <KeyBinding Key="R" Modifiers="Control" Command="{Binding RefreshMetadataCommand}"/>
+        <KeyBinding Key="F1" Command="{Binding OpenHelpCommand}"/>
+    </Window.InputBindings>
+
     <Window.Resources>
         <!-- КОНВЕРТЕРИ -->
         <converters:RatingToVisibilityConverter x:Key="RatingToVisibilityConverter"/>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
 
-        <!-- БАЗОВІ КОЛЬОРИ -->
-        <SolidColorBrush x:Key="BackgroundPrimary" Color="#FF0D0D0D"/>
-        <SolidColorBrush x:Key="BackgroundSecondary" Color="#FF1A1A1A"/>
-        <SolidColorBrush x:Key="BackgroundCard" Color="#FF2C2C2C"/>
-        <SolidColorBrush x:Key="AccentColor" Color="#FFC05A5A"/>
-        <SolidColorBrush x:Key="AccentHover" Color="#FFD06A6A"/>
-        <SolidColorBrush x:Key="TextPrimary" Color="#FFFFFFFF"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="#FFAAAAAA"/>
-        <SolidColorBrush x:Key="TextMuted" Color="#FF666666"/>
-        <SolidColorBrush x:Key="BorderColor" Color="#FF333333"/>
-
+        <!-- ============================================================ -->
         <!-- СТИЛЬ СКРОЛБАРУ -->
+        <!-- ============================================================ -->
         <Style TargetType="ScrollBar">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Width" Value="5"/>
+            <Setter Property="Width" Value="6"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ScrollBar">
                         <Grid>
                             <Track x:Name="PART_Track" IsDirectionReversed="True">
                                 <Track.Thumb>
-                                    <Thumb Background="#FF444444" Height="40">
+                                    <Thumb Background="#C7C7CC" Height="40">
                                         <Thumb.Resources>
                                             <Style TargetType="Thumb">
                                                 <Setter Property="Template">
                                                     <Setter.Value>
                                                         <ControlTemplate TargetType="Thumb">
                                                             <Border Background="{TemplateBinding Background}" 
-                                                                    CornerRadius="2" 
+                                                                    CornerRadius="3" 
                                                                     Margin="2"/>
                                                         </ControlTemplate>
                                                     </Setter.Value>
@@ -76,70 +78,56 @@
             </Setter>
         </Style>
 
+        <!-- ============================================================ -->
         <!-- СТИЛЬ КАРТКИ -->
+        <!-- ============================================================ -->
         <Style x:Key="MediaCardStyle" TargetType="Border">
-            <Setter Property="Width" Value="185"/>
-            <Setter Property="Height" Value="290"/>
-            <Setter Property="Margin" Value="8"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Background" Value="{StaticResource BackgroundCard}"/>
+            <Setter Property="Width" Value="200"/>
+            <Setter Property="Height" Value="320"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Background" Value="{DynamicResource BackgroundCard}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="ClipToBounds" Value="True"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="Black" Opacity="0.3" ShadowDepth="3" BlurRadius="6"/>
+                    <DropShadowEffect Color="#000000" Opacity="0.12" ShadowDepth="3" BlurRadius="12"/>
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF333333"/>
                     <Setter Property="Effect">
                         <Setter.Value>
-                            <DropShadowEffect Color="Black" Opacity="0.7" ShadowDepth="8" BlurRadius="15"/>
+                            <DropShadowEffect Color="#000000" Opacity="0.25" ShadowDepth="8" BlurRadius="20"/>
                         </Setter.Value>
                     </Setter>
                     <Setter Property="RenderTransform">
                         <Setter.Value>
-                            <ScaleTransform ScaleX="1.04" ScaleY="1.04"/>
+                            <ScaleTransform ScaleX="1.03" ScaleY="1.03"/>
                         </Setter.Value>
                     </Setter>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <!-- СТИЛЬ КАТЕГОРІЙ -->
-        <Style x:Key="CategoryItemStyle" TargetType="Border">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Margin" Value="6,2"/>
-            <Setter Property="Padding" Value="12,9"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#30FFFFFF"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="SelectedCategoryStyle" TargetType="Border" BasedOn="{StaticResource CategoryItemStyle}">
-            <Setter Property="Background" Value="#25FFFFFF"/>
-            <Setter Property="BorderBrush" Value="{StaticResource AccentColor}"/>
-            <Setter Property="BorderThickness" Value="0,0,3,0"/>
-        </Style>
-
+        <!-- ============================================================ -->
         <!-- СТИЛЬ PRIMARY КНОПКИ -->
+        <!-- ============================================================ -->
         <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+            <Setter Property="Background" Value="{DynamicResource AccentColor}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="18,9"/>
+            <Setter Property="Padding" Value="20,12"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="MinWidth" Value="130"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="21">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
@@ -147,25 +135,89 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource AccentHover}"/>
+                    <Setter Property="Background" Value="{DynamicResource AccentHover}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
+        <!-- ============================================================ -->
         <!-- СТИЛЬ ІКОНКОВОЇ КНОПКИ -->
+        <!-- ============================================================ -->
         <Style x:Key="IconButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#FF333333"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Width" Value="38"/>
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="MinWidth" Value="38"/>
-            <Setter Property="MinHeight" Value="38"/>
+            <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+            <Setter Property="Width" Value="42"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="MinWidth" Value="42"/>
+            <Setter Property="MinHeight" Value="42"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="21">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E0E0E5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ============================================================ -->
+        <!-- СТИЛЬ КНОПОК ПАГІНАЦІЇ -->
+        <!-- ============================================================ -->
+        <Style x:Key="PaginationButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="MinWidth" Value="36"/>
+            <Setter Property="MinHeight" Value="36"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource AccentColor}"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.4"/>
+                    <Setter Property="Cursor" Value="Arrow"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ============================================================ -->
+        <!-- СТИЛЬ КНОПОК ВІКНА -->
+        <!-- ============================================================ -->
+        <Style x:Key="WindowButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryDark}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
@@ -174,32 +226,7 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF444444"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- СТИЛЬ КНОПОК ВІКНА -->
-        <Style x:Key="WindowButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Width" Value="36"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF3A3A3A"/>
+                    <Setter Property="Background" Value="#2A2A2A"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -207,19 +234,21 @@
         <Style x:Key="CloseButtonStyle" TargetType="Button" BasedOn="{StaticResource WindowButtonStyle}">
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FFE81123"/>
+                    <Setter Property="Background" Value="#FF3B30"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <!-- СТИЛЬ КАТЕГОРІЙ ЯК КНОПКИ -->
+        <!-- ============================================================ -->
+        <!-- СТИЛЬ КАТЕГОРІЙ -->
+        <!-- ============================================================ -->
         <Style x:Key="CategoryButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-            <Setter Property="Padding" Value="12,9"/>
+            <Setter Property="Padding" Value="14,12"/>
             <Setter Property="Margin" Value="0,0,0,2"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -236,88 +265,178 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#30FFFFFF"/>
+                    <Setter Property="Background" Value="{DynamicResource SidebarHover}"/>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#40FFFFFF"/>
+                    <Setter Property="Background" Value="{DynamicResource SidebarSelected}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <!-- СТИЛЬ ВИБРАНОЇ КАТЕГОРІЇ -->
         <Style x:Key="SelectedCategoryButtonStyle" TargetType="Button" BasedOn="{StaticResource CategoryButtonStyle}">
-            <Setter Property="Background" Value="#25FFFFFF"/>
-            <Setter Property="BorderBrush" Value="{StaticResource AccentColor}"/>
-            <Setter Property="BorderThickness" Value="0,0,3,0"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#35FFFFFF"/>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="Background" Value="{DynamicResource SidebarSelected}"/>
         </Style>
 
-        <!-- СТИЛЬ ПОЛЯ ПОШУКУ -->
-        <Style x:Key="SearchTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="#FF333333"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+        <!-- ============================================================ -->
+        <!-- СТИЛЬ БЕЙДЖА -->
+        <!-- ============================================================ -->
+        <Style x:Key="BadgeStyle" TargetType="Border">
+            <Setter Property="Background" Value="#2A2A2A"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="MinWidth" Value="28"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Padding" Value="6,0"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
+        </Style>
+
+        <!-- ============================================================ -->
+        <!-- СТИЛЬ COMBOBOX -->
+        <!-- ============================================================ -->
+        <Style x:Key="ModernComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="18,0,10,0"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Height" Value="40"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="20">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
-                        </Border>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton"
+                                          Focusable="False"
+                                          ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Background="Transparent"
+                                          BorderThickness="0">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <ContentPresenter Grid.Column="0"
+                                                                  Margin="14,0"
+                                                                  VerticalAlignment="Center"
+                                                                  HorizontalAlignment="Left"
+                                                                  Content="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType=ComboBox}}"/>
+
+                                                <TextBlock Grid.Column="1" 
+                                                           Text="▾" 
+                                                           FontSize="12"
+                                                           Margin="0,0,14,0"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource TextSecondaryLight}"/>
+                                            </Grid>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <Popup x:Name="PART_Popup" 
+                                   AllowsTransparency="True" 
+                                   Placement="Bottom" 
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   PopupAnimation="Slide">
+                                <Border Background="{DynamicResource BackgroundSecondary}" 
+                                        CornerRadius="10" 
+                                        Margin="0,4,0,0"
+                                        MinWidth="{TemplateBinding ActualWidth}"
+                                        MaxHeight="300">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#000000" Opacity="0.15" ShadowDepth="4" BlurRadius="12"/>
+                                    </Border.Effect>
+                                    <ScrollViewer>
+                                        <StackPanel>
+                                            <ItemsPresenter/>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ToggleButton" Property="Background" Value="#E5E5EA"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsFocused" Value="True">
-                    <Setter Property="Foreground" Value="White"/>
-                    <Setter Property="Background" Value="#FF3A3A3A"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
 
-        <!-- СТИЛЬ БЕЙДЖА -->
-        <Style x:Key="BadgeStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource AccentColor}"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="6,1"/>
-            <Setter Property="Margin" Value="8,0,0,0"/>
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-        </Style>
-
-        <!-- СТИЛЬ COMBOBOX -->
-        <Style x:Key="SortComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Background" Value="#FF333333"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Width" Value="150"/>
-            <Setter Property="Padding" Value="10,0"/>
+        <!-- СТИЛЬ ЕЛЕМЕНТІВ COMBOBOX -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Padding" Value="14,10"/>
             <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border Background="Transparent" 
+                                x:Name="itemBorder"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="itemBorder" Property="Background" Value="{DynamicResource InputBackground}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="itemBorder" Property="Background" Value="#E8F5E9"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentColor}"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ============================================================ -->
+        <!-- СТИЛЬ ПОЛЯ ПОШУКУ -->
+        <!-- ============================================================ -->
+        <Style x:Key="SearchTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <ScrollViewer x:Name="PART_ContentHost" 
+                                      VerticalAlignment="Center"
+                                      Margin="0"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
-    <!-- ГОЛОВНИЙ КОНТЕЙНЕР З ЗАОКРУГЛЕНИМИ КУТАМИ -->
-    <Border Background="{StaticResource BackgroundPrimary}" 
-            CornerRadius="12"
-            BorderBrush="{StaticResource BorderColor}"
+    <!-- ГОЛОВНИЙ КОНТЕЙНЕР -->
+    <Border Background="{DynamicResource BackgroundPrimary}" 
+            CornerRadius="16"
+            BorderBrush="{DynamicResource BorderColor}"
             BorderThickness="1"
-            Margin="10">
+            Margin="8">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="44"/>
+                <RowDefinition Height="52"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- ЗАГОЛОВОК ВІКНА (кастомний) -->
+            <!-- ЗАГОЛОВОК ВІКНА -->
             <Border Grid.Row="0" 
-                    Background="{StaticResource BackgroundSecondary}" 
-                    CornerRadius="12,12,0,0"
+                    Background="{DynamicResource SidebarBackground}" 
+                    CornerRadius="16,16,0,0"
                     MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -326,16 +445,14 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Логотип -->
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="16,0">
-                        <Border Width="28" Height="28" Background="{StaticResource AccentColor}" CornerRadius="6" Margin="0,0,10,0">
-                            <TextBlock Text="⚡" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="20,0">
+                        <Border Width="32" Height="32" Background="{DynamicResource AccentColor}" CornerRadius="8" Margin="0,0,12,0">
+                            <TextBlock Text="⚡" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="MediaVault" FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
+                        <TextBlock Text="MediaVault" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryDark}" VerticalAlignment="Center"/>
                     </StackPanel>
 
-                    <!-- Кнопки керування вікном -->
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,8,0">
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,12,0">
                         <Button Content="─" 
                                 Style="{StaticResource WindowButtonStyle}" 
                                 Click="MinimizeWindow_Click"
@@ -355,19 +472,16 @@
             <!-- ОСНОВНА ЧАСТИНА -->
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" MinWidth="200" MaxWidth="280"/>
+                    <ColumnDefinition Width="240"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- ЛІВА ПАНЕЛЬ -->
                 <Border Grid.Column="0" 
-                        Background="{StaticResource BackgroundSecondary}" 
-                        BorderBrush="{StaticResource BorderColor}" 
-                        BorderThickness="0,0,1,0"
-                        Padding="0,12,0,12"
-                        CornerRadius="0,0,0,12">
+                        Background="{DynamicResource SidebarBackground}"
+                        CornerRadius="0,0,0,16">
 
-                    <Grid Margin="0,8,0,8">
+                    <Grid Margin="0,16,0,16">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
@@ -375,12 +489,12 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0" Margin="16,0,16,12">
-                            <TextBlock Text="📊 COLLECTION" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="Bold"/>
-                        </StackPanel>
-
                         <!-- Статистика -->
-                        <Border Grid.Row="1" Background="#FF1E1E1E" CornerRadius="10" Margin="16,0,16,14" Padding="14,12">
+                        <Border Grid.Row="0" 
+                                Background="{DynamicResource SidebarCard}" 
+                                CornerRadius="12" 
+                                Margin="16,0,16,20" 
+                                Padding="16,14">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -392,42 +506,52 @@
                                 </Grid.RowDefinitions>
 
                                 <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-                                    <TextBlock Text="📁" FontSize="14" Margin="0,0,6,0"/>
-                                    <TextBlock Text="{Binding TotalCount}" Foreground="White" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock Text="📁" FontSize="16" Margin="0,0,8,0"/>
+                                    <TextBlock Text="{Binding TotalCount}" Foreground="White" FontSize="15" FontWeight="SemiBold"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <TextBlock Text="💾" FontSize="14" Margin="0,0,6,0"/>
-                                    <TextBlock Text="{Binding TotalSize}" Foreground="White" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock Text="💾" FontSize="16" Margin="0,0,8,0"/>
+                                    <TextBlock Text="{Binding TotalSize}" Foreground="White" FontSize="15" FontWeight="SemiBold"/>
                                 </StackPanel>
 
-                                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,4,0,0">
-                                    <TextBlock Text="🎬" FontSize="12" Margin="0,0,4,0"/>
-                                    <TextBlock Text="{Binding FilmCount}" Foreground="{StaticResource TextSecondary}" FontSize="12"/>
-                                    <TextBlock Text=" films" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="2,0,0,0"/>
+                                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,6,0,0">
+                                    <TextBlock Text="🎬" FontSize="13" Margin="0,0,6,0"/>
+                                    <TextBlock Text="{Binding FilmCount}" Foreground="{DynamicResource TextSecondaryDark}" FontSize="13"/>
                                 </StackPanel>
 
-                                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,0,0">
-                                    <TextBlock Text="📚" FontSize="12" Margin="0,0,4,0"/>
-                                    <TextBlock Text="{Binding BookCount}" Foreground="{StaticResource TextSecondary}" FontSize="12"/>
-                                    <TextBlock Text=" books" Foreground="{StaticResource TextMuted}" FontSize="11" Margin="2,0,0,0"/>
+                                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,0,0">
+                                    <TextBlock Text="📚" FontSize="13" Margin="0,0,6,0"/>
+                                    <TextBlock Text="{Binding BookCount}" Foreground="{DynamicResource TextSecondaryDark}" FontSize="13"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
 
-                        <!-- Категорії -->
-                        <StackPanel Grid.Row="2" Margin="12,0,12,0">
-                            <TextBlock Text="CATEGORIES" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="Bold" Margin="8,0,0,10"/>
+                        <!-- КАТЕГОРІЇ -->
+                        <StackPanel Grid.Row="2" Margin="12,0,12,0" 
+                                    Visibility="{Binding IsCategoriesMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="КАТЕГОРІЇ" Foreground="{DynamicResource TextMutedDark}" FontSize="11" FontWeight="Bold" Margin="8,0,0,10"/>
 
                             <!-- All Files -->
                             <Button Style="{StaticResource SelectedCategoryButtonStyle}" 
                                     Command="{Binding FilterCommand}" 
                                     CommandParameter="All"
                                     Margin="0,0,0,2">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="🔄 Оновити метадані для всіх файлів" 
+                                                  Command="{Binding PlacementTarget.DataContext.RefreshMetadataForCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="All"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
                                 <Grid>
-                                    <TextBlock Text="📂 All Files" Foreground="White" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Style="{StaticResource BadgeStyle}" Margin="120,0,8,0">
-                                        <TextBlock Text="{Binding TotalCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="📂 Усі файли" Foreground="White" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Style="{StaticResource BadgeStyle}">
+                                        <TextBlock Text="{Binding TotalCount}" Foreground="White" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                 </Grid>
                             </Button>
@@ -437,10 +561,55 @@
                                     Command="{Binding FilterCommand}" 
                                     CommandParameter="Film"
                                     Margin="0,0,0,2">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="🔄 Оновити метадані для цієї категорії" 
+                                                  Command="{Binding PlacementTarget.DataContext.RefreshMetadataForCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="Film"/>
+                                        <Separator/>
+                                        <MenuItem Header="🗑️ Видалити цю категорію з колекції" 
+                                                  Command="{Binding PlacementTarget.DataContext.ClearCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="Film"
+                                                  Foreground="Red"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
                                 <Grid>
-                                    <TextBlock Text="🎬 Films" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="120,0,8,0" HorizontalAlignment="Right">
-                                        <TextBlock Text="{Binding FilmCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="🎬 Фільми (30+ хв)" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Style="{StaticResource BadgeStyle}">
+                                        <TextBlock Text="{Binding FilmCount}" Foreground="White" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
+                            </Button>
+
+                            <!-- ShortVideo -->
+                            <Button Style="{StaticResource CategoryButtonStyle}" 
+                                    Command="{Binding FilterCommand}" 
+                                    CommandParameter="ShortVideo"
+                                    Margin="0,0,0,2">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="🔄 Оновити метадані для цієї категорії" 
+                                                  Command="{Binding PlacementTarget.DataContext.RefreshMetadataForCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="ShortVideo"/>
+                                        <Separator/>
+                                        <MenuItem Header="🗑️ Видалити цю категорію з колекції" 
+                                                  Command="{Binding PlacementTarget.DataContext.ClearCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="ShortVideo"
+                                                  Foreground="Red"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="📱 Короткі відео" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Style="{StaticResource BadgeStyle}">
+                                        <TextBlock Text="{Binding ShortVideoCount}" Foreground="White" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                 </Grid>
                             </Button>
@@ -450,10 +619,26 @@
                                     Command="{Binding FilterCommand}" 
                                     CommandParameter="Book"
                                     Margin="0,0,0,2">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="🔄 Оновити метадані для цієї категорії" 
+                                                  Command="{Binding PlacementTarget.DataContext.RefreshMetadataForCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="Book"/>
+                                        <Separator/>
+                                        <MenuItem Header="🗑️ Видалити цю категорію з колекції" 
+                                                  Command="{Binding PlacementTarget.DataContext.ClearCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="Book"
+                                                  Foreground="Red"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
                                 <Grid>
-                                    <TextBlock Text="📖 Books" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="120,0,8,0" HorizontalAlignment="Right">
-                                        <TextBlock Text="{Binding BookCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="📖 Книги" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Style="{StaticResource BadgeStyle}">
+                                        <TextBlock Text="{Binding BookCount}" Foreground="White" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                 </Grid>
                             </Button>
@@ -463,10 +648,26 @@
                                     Command="{Binding FilterCommand}" 
                                     CommandParameter="Music"
                                     Margin="0,0,0,2">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="🔄 Оновити метадані для цієї категорії" 
+                                                  Command="{Binding PlacementTarget.DataContext.RefreshMetadataForCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="Music"/>
+                                        <Separator/>
+                                        <MenuItem Header="🗑️ Видалити цю категорію з колекції" 
+                                                  Command="{Binding PlacementTarget.DataContext.ClearCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="Music"
+                                                  Foreground="Red"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
                                 <Grid>
-                                    <TextBlock Text="🎵 Music" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="120,0,8,0" HorizontalAlignment="Right">
-                                        <TextBlock Text="{Binding MusicCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="🎵 Музика" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Style="{StaticResource BadgeStyle}">
+                                        <TextBlock Text="{Binding MusicCount}" Foreground="White" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                 </Grid>
                             </Button>
@@ -476,10 +677,26 @@
                                     Command="{Binding FilterCommand}" 
                                     CommandParameter="Image"
                                     Margin="0,0,0,2">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="🔄 Оновити метадані для цієї категорії" 
+                                                  Command="{Binding PlacementTarget.DataContext.RefreshMetadataForCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="Image"/>
+                                        <Separator/>
+                                        <MenuItem Header="🗑️ Видалити цю категорію з колекції" 
+                                                  Command="{Binding PlacementTarget.DataContext.ClearCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="Image"
+                                                  Foreground="Red"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
                                 <Grid>
-                                    <TextBlock Text="🖼️ Images" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="120,0,8,0" HorizontalAlignment="Right">
-                                        <TextBlock Text="{Binding ImageCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="🖼️ Зображення" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Style="{StaticResource BadgeStyle}">
+                                        <TextBlock Text="{Binding ImageCount}" Foreground="White" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                 </Grid>
                             </Button>
@@ -489,15 +706,60 @@
                                     Command="{Binding FilterCommand}" 
                                     CommandParameter="Document"
                                     Margin="0,0,0,2">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="🔄 Оновити метадані для цієї категорії" 
+                                                  Command="{Binding PlacementTarget.DataContext.RefreshMetadataForCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="Document"/>
+                                        <Separator/>
+                                        <MenuItem Header="🗑️ Видалити цю категорію з колекції" 
+                                                  Command="{Binding PlacementTarget.DataContext.ClearCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="Document"
+                                                  Foreground="Red"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
                                 <Grid>
-                                    <TextBlock Text="📄 Documents" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FF444444" CornerRadius="10" Padding="6,1" Margin="120,0,8,0" HorizontalAlignment="Right">
-                                        <TextBlock Text="{Binding DocumentCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="📄 Документи" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Style="{StaticResource BadgeStyle}">
+                                        <TextBlock Text="{Binding DocumentCount}" Foreground="White" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                 </Grid>
                             </Button>
 
-                            <Border Height="1" Background="{StaticResource BorderColor}" Margin="8,16,8,16"/>
+                            <!-- Programs -->
+                            <Button Style="{StaticResource CategoryButtonStyle}" 
+                                    Command="{Binding FilterCommand}" 
+                                    CommandParameter="Program"
+                                    Margin="0,0,0,2">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="🔄 Оновити метадані для цієї категорії" 
+                                                  Command="{Binding PlacementTarget.DataContext.RefreshMetadataForCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="Program"/>
+                                        <Separator/>
+                                        <MenuItem Header="🗑️ Видалити цю категорію з колекції" 
+                                                  Command="{Binding PlacementTarget.DataContext.ClearCategoryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="Program"
+                                                  Foreground="Red"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="💻 Програми" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Style="{StaticResource BadgeStyle}">
+                                        <TextBlock Text="{Binding ProgramCount}" Foreground="White" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
+                            </Button>
+
+                            <Border Height="1" Background="#2A2A2A" Margin="8,16,8,16"/>
 
                             <!-- Favorites -->
                             <Button Style="{StaticResource CategoryButtonStyle}" 
@@ -505,28 +767,109 @@
                                     CommandParameter="Favorite"
                                     Margin="0,0,0,2">
                                 <Grid>
-                                    <TextBlock Text="⭐ Favorites" Foreground="{StaticResource TextSecondary}" FontSize="14" FontWeight="SemiBold"/>
-                                    <Border Background="#FFB8860B" CornerRadius="10" Padding="6,1" Margin="120,0,8,0" HorizontalAlignment="Right">
-                                        <TextBlock Text="{Binding FavoriteCount}" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="⭐ Улюблені" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Style="{StaticResource BadgeStyle}">
+                                        <TextBlock Text="{Binding FavoriteCount}" Foreground="White" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                 </Grid>
                             </Button>
+
+
+                            <TextBlock Text="ДЖЕРЕЛА" Foreground="{DynamicResource TextMutedDark}" FontSize="11" FontWeight="Bold" Margin="8,0,0,10"/>
+
+                            <Button Style="{StaticResource CategoryButtonStyle}" Command="{Binding ClearFolderFilterCommand}" Margin="0,0,0,2">
+                                <TextBlock Text="🌐 Усі джерела" Foreground="{DynamicResource TextSecondaryDark}" FontSize="13" FontWeight="SemiBold"/>
+                            </Button>
+
+                            <TreeView ItemsSource="{Binding RootFolders}" 
+          Background="Transparent" 
+          BorderThickness="0" 
+          Margin="0,4,0,0"
+          SelectedItemChanged="TreeView_SelectedItemChanged">
+                                <TreeView.ItemContainerStyle>
+                                    <Style TargetType="TreeViewItem">
+                                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryDark}"/>
+                                        <Setter Property="FontSize" Value="13"/>
+                                        <Setter Property="Padding" Value="2"/>
+                                    </Style>
+                                </TreeView.ItemContainerStyle>
+
+                                <TreeView.ItemTemplate>
+                                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📂" FontSize="12" Margin="0,0,6,0"/>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </HierarchicalDataTemplate>
+                                </TreeView.ItemTemplate>
+                            </TreeView>
                         </StackPanel>
 
-                        <!-- Налаштування -->
-                        <StackPanel Grid.Row="3" Margin="12,0,12,16">
-                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
-                                <TextBlock Text="⚙️ Settings" Foreground="{StaticResource TextMuted}" FontSize="14" FontWeight="SemiBold"/>
+                        <!-- ІНСТРУМЕНТИ -->
+                        <StackPanel Grid.Row="2" Margin="12,0,12,0" 
+                                    Visibility="{Binding IsToolsMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="ІНСТРУМЕНТИ" Foreground="{DynamicResource TextMutedDark}" FontSize="11" FontWeight="Bold" Margin="8,0,0,10"/>
+
+                            <Button Style="{StaticResource CategoryButtonStyle}" Click="OpenDashboard_Click" Margin="0,0,0,2">
+                                <TextBlock Text="📊 Статистика" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold"/>
                             </Button>
-                            <Button Style="{StaticResource CategoryButtonStyle}" Margin="0,0,0,2">
-                                <TextBlock Text="❓ Help" Foreground="{StaticResource TextMuted}" FontSize="14" FontWeight="SemiBold"/>
+
+                            <Button Style="{StaticResource CategoryButtonStyle}" Command="{Binding FindDuplicatesCommand}" Margin="0,0,0,2">
+                                <TextBlock Text="🔍 Пошук дублікатів" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold"/>
+                            </Button>
+
+                            <Button Style="{StaticResource CategoryButtonStyle}" Command="{Binding ExportReportCommand}" Margin="0,0,0,2">
+                                <TextBlock Text="🖨 Звіт для друку" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold"/>
+                            </Button>
+
+                            <Button Style="{StaticResource CategoryButtonStyle}" Command="{Binding RefreshMetadataCommand}" Margin="0,0,0,2">
+                                <TextBlock Text="🔄 Оновити всі метадані" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold"/>
+                            </Button>
+
+                            <Button Style="{StaticResource CategoryButtonStyle}" Command="{Binding RefreshMetadataForFolderCommand}" Margin="0,0,0,2">
+                                <TextBlock Text="🔄 Оновити метадані (папка)" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold"/>
+                            </Button>
+                            <Button Style="{StaticResource CategoryButtonStyle}" 
+        Command="{Binding RemoveFolderCommand}"
+        Margin="0,0,0,2">
+                                <TextBlock Text="📂 Видалити папку з колекції" 
+               Foreground="{DynamicResource TextSecondaryDark}" 
+               FontSize="14" 
+               FontWeight="SemiBold"/>
+                            </Button>
+
+                            <Border Height="1" Background="#2A2A2A" Margin="8,16,8,16"/>
+
+                            <Button Style="{StaticResource CategoryButtonStyle}" Click="OpenSettings_Click" Margin="0,0,0,2">
+                                <TextBlock Text="⚙️ Налаштування" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold"/>
+                            </Button>
+
+                            <Button Style="{StaticResource CategoryButtonStyle}" Click="OpenHelp_Click" Margin="0,0,0,2">
+                                <TextBlock Text="❓ Довідка" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold"/>
+                            </Button>
+                        </StackPanel>
+
+                        <!-- НИЗ: Кнопка перемикання -->
+                        <StackPanel Grid.Row="3" Margin="12,0,12,20">
+                            <Border Height="1" Background="#2A2A2A" Margin="8,0,8,12"/>
+                            <Button Style="{StaticResource CategoryButtonStyle}" Command="{Binding ToggleToolsCommand}" Margin="0,0,0,2">
+                                <TextBlock Text="{Binding ToolsButtonText}" 
+                                           Foreground="{DynamicResource TextSecondaryDark}" 
+                                           FontSize="14" 
+                                           FontWeight="SemiBold"/>
                             </Button>
                         </StackPanel>
                     </Grid>
                 </Border>
 
                 <!-- ПРАВА ЧАСТИНА -->
-                <Grid Grid.Column="1" Background="{StaticResource BackgroundPrimary}">
+                <Grid Grid.Column="1" Background="{DynamicResource BackgroundPrimary}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -535,48 +878,41 @@
 
                     <!-- Верхня панель -->
                     <Border Grid.Row="0" 
-        Background="{StaticResource BackgroundSecondary}" 
-        BorderBrush="{StaticResource BorderColor}" 
-        BorderThickness="0,0,0,1"
-        Padding="20,12,20,12">
+                            Background="{DynamicResource BackgroundSecondary}" 
+                            BorderBrush="{DynamicResource BorderColor}" 
+                            BorderThickness="0,0,0,1"
+                            Padding="24,16,24,16">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <!-- Рядок 1: Пошук + ComboBox + Кнопки -->
                             <DockPanel Grid.Row="0" LastChildFill="True">
-                                <!-- Кнопки праворуч -->
                                 <StackPanel DockPanel.Dock="Right" 
-                        Orientation="Horizontal" 
-                        Margin="12,0,0,0">
-                                    <Button Content="📁 Add Folder" 
-                        Style="{StaticResource PrimaryButtonStyle}"
-                        Command="{Binding AddFolderCommand}"
-                        MinWidth="130"
-                        Margin="0,0,8,0"/>
+                                            Orientation="Horizontal" 
+                                            Margin="16,0,0,0">
+                                    <Button Content="📁 Додати папку" 
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            Command="{Binding AddFolderCommand}"
+                                            Margin="0,0,10,0"/>
                                     <Button Content="↻" 
-                        Style="{StaticResource IconButtonStyle}"
-                        Command="{Binding SaveCommand}"
-                        ToolTip="Зберегти"
-                        Margin="0,0,8,0"/>
+                                            Style="{StaticResource IconButtonStyle}"
+                                            Command="{Binding SaveCommand}"
+                                            ToolTip="Зберегти"
+                                            Margin="0,0,10,0"/>
                                     <Button Content="🗑️" 
-                        Style="{StaticResource IconButtonStyle}"
-                        Command="{Binding ClearCommand}"
-                        ToolTip="Очистити колекцію"/>
+                                            Style="{StaticResource IconButtonStyle}"
+                                            Command="{Binding ClearCommand}"
+                                            ToolTip="Очистити колекцію"/>
                                 </StackPanel>
 
-                                <!-- ComboBox сортування -->
                                 <ComboBox DockPanel.Dock="Right"
-                      Width="160"
-                      Height="38"
-                      Background="#FF333333"
-                      Foreground="White"
-                      BorderThickness="0"
-                      Margin="12,0,0,0"
-                      SelectedValue="{Binding SortBy}"
-                      SelectedValuePath="Tag">
+                                          Style="{StaticResource ModernComboBoxStyle}"
+                                          Width="170"
+                                          Margin="16,0,0,0"
+                                          SelectedValue="{Binding SortBy}"
+                                          SelectedValuePath="Tag">
                                     <ComboBoxItem Content="Назва (А-Я)" Tag="Title"/>
                                     <ComboBoxItem Content="Назва (Я-А)" Tag="TitleDesc"/>
                                     <ComboBoxItem Content="Розмір ↓" Tag="Size"/>
@@ -586,70 +922,86 @@
                                     <ComboBoxItem Content="Рейтинг ↓" Tag="Rating"/>
                                 </ComboBox>
 
-                                <!-- Пошук -->
-                                <Border Background="#FF333333" 
-                    CornerRadius="20" 
-                    MaxWidth="480" 
-                    HorizontalAlignment="Left"
-                    MinWidth="200">
+                                <Border Background="{DynamicResource InputBackground}" 
+                                        CornerRadius="21" 
+                                        MaxWidth="480" 
+                                        HorizontalAlignment="Left"
+                                        MinWidth="200"
+                                        Height="42">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBox Grid.Column="0" 
-                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
-                             Style="{StaticResource SearchTextBoxStyle}"/>
+                                        <TextBox x:Name="SearchBox"
+                                                   Grid.Column="0" 
+                                                   Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                                   Style="{StaticResource SearchTextBoxStyle}"
+                                                   ToolTip="Пошук за назвою, автором, жанром або SHA-256 хешем"
+                                                   Margin="18,0,10,0"/>
 
                                         <TextBlock Grid.Column="1" 
-                               Text="⌘" 
-                               FontSize="12" 
-                               Foreground="{StaticResource TextMuted}" 
-                               VerticalAlignment="Center" 
-                               Margin="0,0,14,0" 
-                               Opacity="0.5"/>
+                                                   Text="🔍" 
+                                                   FontSize="14" 
+                                                   Foreground="{DynamicResource TextSecondaryLight}" 
+                                                   VerticalAlignment="Center" 
+                                                   Margin="0,0,16,0"/>
                                     </Grid>
                                 </Border>
                             </DockPanel>
 
-                            <!-- Рядок 2: Прогрес-бар (з'являється тільки під час сканування) -->
-                            <ProgressBar Grid.Row="1" 
-                     Height="4"
-                     Value="{Binding ScanProgress}"
-                     Maximum="100"
-                     Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
-                     Margin="0,10,0,0"
-                     Foreground="{StaticResource AccentColor}"
-                     Background="#FF333333"
-                     BorderThickness="0"/>
+                            <Grid Grid.Row="1" Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <ProgressBar Grid.Column="0" 
+                                             Height="6"
+                                             Value="{Binding ScanProgress}"
+                                             Maximum="100"
+                                             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                                             Foreground="{DynamicResource AccentColor}"
+                                             Background="{DynamicResource InputBackground}"
+                                             BorderThickness="0"
+                                             Margin="0,0,16,0"/>
+
+                                <TextBlock Grid.Column="1" 
+                                           Text="{Binding ProgressInfo}" 
+                                           Foreground="{DynamicResource TextSecondaryLight}" 
+                                           FontSize="12"
+                                           VerticalAlignment="Center"
+                                           Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </Grid>
                         </Grid>
                     </Border>
 
                     <!-- КАРТКИ + ПОРОЖНІЙ СТАН -->
                     <Grid Grid.Row="1">
-                        <!-- Порожній стан -->
                         <StackPanel HorizontalAlignment="Center" 
                                     VerticalAlignment="Center"
                                     Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Text="📁" FontSize="72" HorizontalAlignment="Center" Opacity="0.3"/>
+                            <TextBlock Text="📁" FontSize="80" HorizontalAlignment="Center" Opacity="0.15"/>
                             <TextBlock Text="Колекція порожня" 
-                                       Foreground="{StaticResource TextMuted}" 
-                                       FontSize="18" 
+                                       Foreground="{DynamicResource TextPrimaryLight}" 
+                                       FontSize="22" 
+                                       FontWeight="Bold"
                                        HorizontalAlignment="Center"
-                                       Margin="0,16,0,8"/>
-                            <TextBlock Text="Натисніть 'Add Folder', щоб додати файли" 
-                                       Foreground="{StaticResource TextMuted}" 
-                                       FontSize="13" 
+                                       Margin="0,20,0,8"/>
+                            <TextBlock Text="Натисніть 'Додати папку', щоб почати" 
+                                       Foreground="{DynamicResource TextSecondaryLight}" 
+                                       FontSize="14" 
                                        HorizontalAlignment="Center"/>
                         </StackPanel>
 
-                        <!-- Картки -->
-                        <ScrollViewer Margin="12,12,12,6" 
+                        <ScrollViewer Margin="16,16,16,8" 
                                       Background="Transparent"
                                       HorizontalScrollBarVisibility="Disabled" 
                                       VerticalScrollBarVisibility="Auto"
-                                      Padding="4">
+                                      Padding="4"
+                                      VirtualizingStackPanel.IsVirtualizing="True"
+                                      VirtualizingStackPanel.VirtualizationMode="Recycling">
 
                             <ItemsControl ItemsSource="{Binding FilteredMediaItems}">
                                 <ItemsControl.ItemsPanel>
@@ -668,6 +1020,15 @@
                                                     <MenuItem Header="▶ Відкрити файл" Click="OpenFile_Click"/>
                                                     <MenuItem Header="📂 Показати в папці" Click="ShowInFolder_Click"/>
                                                     <Separator/>
+                                                    <MenuItem Header="✏️ Перейменувати" Click="RenameFile_Click"/>
+                                                    <MenuItem Header="📋 Копіювати шлях" Click="CopyPath_Click"/>
+                                                    <MenuItem Header="📋 Копіювати назву" Click="CopyTitle_Click"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="🌐 Відкрити на TMDb" Click="OpenTmdbFromCard_Click"/>
+                                                    <MenuItem Header="🎵 Відкрити в iTunes" Click="OpenTrackUrlFromCard_Click"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="🖼️ Вибрати обкладинку" Click="ChooseCoverFromCard_Click"/>
+                                                    <Separator/>
                                                     <MenuItem Header="⭐ Додати до улюблених" Click="ToggleFavorite_Click"/>
                                                     <Separator/>
                                                     <MenuItem Header="🗑️ Видалити з колекції" Click="RemoveFromCollection_Click"/>
@@ -680,21 +1041,106 @@
                                                     <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
 
-                                                <!-- Верхня частина (іконка типу) -->
-                                                <Border Grid.Row="0" Background="#FF2A2A2A" CornerRadius="12,12,0,0">
+                                                <Border Grid.Row="0" 
+                                                        Background="{DynamicResource InputBackground}" 
+                                                        CornerRadius="14,14,0,0"
+                                                        ClipToBounds="True">
                                                     <Grid>
+                                                        <Image Source="{Binding PosterUrl}" 
+                                                               Stretch="UniformToFill"
+                                                               ClipToBounds="True">
+                                                            <Image.Style>
+                                                                <Style TargetType="Image">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="Film">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="ShortVideo">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="Book">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="Music">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Image.Style>
+                                                        </Image>
+
+                                                        <Border Padding="30">
+                                                            <Border.Style>
+                                                                <Style TargetType="Border">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="Program">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Type}" Value="Image">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                            <Image Source="{Binding PosterUrl}" 
+                                                                   Stretch="Uniform"
+                                                                   RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                        </Border>
+
                                                         <TextBlock Text="{Binding TypeIcon}" 
-                                                                   FontSize="52" 
+                                                                   FontSize="56" 
                                                                    HorizontalAlignment="Center" 
                                                                    VerticalAlignment="Center" 
-                                                                   Opacity="0.4"/>
+                                                                   Opacity="0.3">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding PosterUrl}" Value="{x:Null}">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding PosterUrl}" Value="">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
 
-                                                        <!-- Рейтинг (якщо є) -->
-                                                        <Border Background="#FFC05A5A" 
-                                                                CornerRadius="4" 
-                                                                Padding="6,2" 
-                                                                Margin="10,10,10,0" 
+                                                        <Border Background="#80000000" 
+                                                                CornerRadius="8" 
+                                                                Padding="6,4" 
+                                                                Margin="10,10,0,0" 
                                                                 VerticalAlignment="Top" 
+                                                                HorizontalAlignment="Left">
+                                                            <TextBlock Text="{Binding TypeIcon}" FontSize="14"/>
+                                                        </Border>
+
+                                                        <Border Background="#80000000" 
+                                                                CornerRadius="8" 
+                                                                Padding="8,4" 
+                                                                Margin="0,10,10,0" 
+                                                                VerticalAlignment="Top" 
+                                                                HorizontalAlignment="Right"
+                                                                Visibility="{Binding VoteAverage, Converter={StaticResource RatingToVisibilityConverter}}">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="⭐" FontSize="11" VerticalAlignment="Center"/>
+                                                                <TextBlock Text="{Binding VoteAverage, StringFormat={}{0:F1}}" 
+                                                                           Foreground="White" 
+                                                                           FontSize="11" 
+                                                                           FontWeight="Bold"
+                                                                           VerticalAlignment="Center"
+                                                                           Margin="3,0,0,0"/>
+                                                            </StackPanel>
+                                                        </Border>
+
+                                                        <Border Background="{DynamicResource AccentColor}" 
+                                                                CornerRadius="8" 
+                                                                Padding="8,4" 
+                                                                Margin="0,0,10,10" 
+                                                                VerticalAlignment="Bottom" 
                                                                 HorizontalAlignment="Right"
                                                                 Visibility="{Binding Rating, Converter={StaticResource RatingToVisibilityConverter}}">
                                                             <TextBlock Text="{Binding Rating}" 
@@ -702,21 +1148,48 @@
                                                                        FontSize="11" 
                                                                        FontWeight="Bold"/>
                                                         </Border>
+
+                                                        <Border Background="#80FF3B30" 
+                                                                CornerRadius="8" 
+                                                                Padding="6,4" 
+                                                                Margin="10,0,0,10" 
+                                                                VerticalAlignment="Bottom" 
+                                                                HorizontalAlignment="Left"
+                                                                Visibility="{Binding IsFavorite, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                            <TextBlock Text="❤️" FontSize="12"/>
+                                                        </Border>
                                                     </Grid>
                                                 </Border>
 
-                                                <!-- Нижня частина (назва та розмір) -->
-                                                <Border Grid.Row="1" Background="#FF2A2A2A" CornerRadius="0,0,12,12" Padding="10,8">
+                                                <Border Grid.Row="1" 
+                                                        Background="{DynamicResource BackgroundCard}" 
+                                                        CornerRadius="0,0,14,14" 
+                                                        Padding="12,10">
                                                     <StackPanel>
                                                         <TextBlock Text="{Binding Title}" 
-                                                                   Foreground="White" 
-                                                                   FontWeight="Bold" 
+                                                                   Foreground="{DynamicResource TextPrimaryLight}" 
+                                                                   FontWeight="SemiBold" 
                                                                    FontSize="13" 
                                                                    TextTrimming="CharacterEllipsis"
-                                                                   MaxWidth="165"/>
+                                                                   MaxWidth="180"/>
+
+                                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                            <TextBlock Text="{Binding Year}" 
+                                                                       Foreground="{DynamicResource TextSecondaryLight}" 
+                                                                       FontSize="11"/>
+                                                            <TextBlock Text=" · " 
+                                                                       Foreground="{DynamicResource TextSecondaryLight}" 
+                                                                       FontSize="11"
+                                                                       Visibility="{Binding Year, Converter={StaticResource NullToVisibilityConverter}}"/>
+                                                            <TextBlock Text="{Binding Genre}" 
+                                                                       Foreground="{DynamicResource TextSecondaryLight}" 
+                                                                       FontSize="11"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       MaxWidth="120"/>
+                                                        </StackPanel>
 
                                                         <TextBlock Text="{Binding FormattedSize}" 
-                                                                   Foreground="{StaticResource TextMuted}" 
+                                                                   Foreground="{DynamicResource TextSecondaryLight}" 
                                                                    FontSize="10" 
                                                                    Margin="0,2,0,0"/>
                                                     </StackPanel>
@@ -731,11 +1204,11 @@
 
                     <!-- Нижня панель (пагінація) -->
                     <Border Grid.Row="2" 
-        Background="{StaticResource BackgroundSecondary}" 
-        BorderBrush="{StaticResource BorderColor}" 
-        BorderThickness="0,1,0,0"
-        Padding="20,10,20,10"
-        CornerRadius="0,0,12,0">
+                            Background="{DynamicResource BackgroundSecondary}" 
+                            BorderBrush="{DynamicResource BorderColor}" 
+                            BorderThickness="0,1,0,0"
+                            Padding="24,12,24,12"
+                            CornerRadius="0,0,16,0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -743,31 +1216,28 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <!-- Ліва частина: статус -->
                             <TextBlock Grid.Column="0" 
-                   Text="{Binding StatusText}" 
-                   Foreground="{StaticResource TextSecondary}" 
-                   FontSize="12"
-                   VerticalAlignment="Center"/>
+                                       Text="{Binding StatusText}" 
+                                       Foreground="{DynamicResource TextSecondaryLight}" 
+                                       FontSize="12"
+                                       VerticalAlignment="Center"/>
 
-                            <!-- Вибір кількості на сторінку -->
                             <StackPanel Grid.Column="1" 
-                    Orientation="Horizontal" 
-                    VerticalAlignment="Center"
-                    Margin="0,0,16,0">
+                                        Orientation="Horizontal" 
+                                        VerticalAlignment="Center"
+                                        Margin="0,0,20,0">
                                 <TextBlock Text="На сторінці:" 
-                       Foreground="{StaticResource TextMuted}" 
-                       FontSize="12"
-                       VerticalAlignment="Center"
-                       Margin="0,0,8,0"/>
+                                           Foreground="{DynamicResource TextSecondaryLight}" 
+                                           FontSize="12"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"/>
 
-                                <ComboBox Width="70"
-                                    Height="30"
-                                    Background="#FF333333"
-                                    Foreground="White"
-                                    BorderThickness="0"
-                                    SelectedIndex="0"
-                                    SelectionChanged="PageSizeComboBox_SelectionChanged">
+                                <ComboBox Style="{StaticResource ModernComboBoxStyle}"
+                                          Width="80"
+                                          Height="34"
+                                          FontSize="12"
+                                          SelectedIndex="0"
+                                          SelectionChanged="PageSizeComboBox_SelectionChanged">
                                     <ComboBoxItem Content="30" Tag="30"/>
                                     <ComboBoxItem Content="50" Tag="50"/>
                                     <ComboBoxItem Content="100" Tag="100"/>
@@ -775,34 +1245,28 @@
                                 </ComboBox>
                             </StackPanel>
 
-                            <!-- Пагінація -->
                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                <!-- Попередня -->
                                 <Button Content="◀" 
-                    Style="{StaticResource IconButtonStyle}" 
-                    Width="32" Height="32" 
-                    FontSize="12" 
-                    Margin="0,0,4,0"
-                    Command="{Binding PrevPageCommand}"/>
+                                        Style="{StaticResource PaginationButtonStyle}" 
+                                        Margin="0,0,8,0"
+                                        Command="{Binding PrevPageCommand}"/>
 
-                                <!-- Інформація про сторінку -->
-                                <Border Background="#FF333333" 
-                    CornerRadius="6" 
-                    Padding="12,4" 
-                    Margin="2,0">
+                                <Border Background="{DynamicResource InputBackground}" 
+                                        CornerRadius="10" 
+                                        Padding="16,8" 
+                                        Margin="0,0,8,0"
+                                        MinWidth="120">
                                     <TextBlock Text="{Binding PageInfo}" 
-                           Foreground="White" 
-                           FontSize="12" 
-                           FontWeight="SemiBold"/>
+                                               Foreground="{DynamicResource TextPrimaryLight}" 
+                                               FontSize="12" 
+                                               FontWeight="SemiBold"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
                                 </Border>
 
-                                <!-- Наступна -->
                                 <Button Content="▶" 
-                    Style="{StaticResource IconButtonStyle}" 
-                    Width="32" Height="32" 
-                    FontSize="12" 
-                    Margin="4,0,0,0"
-                    Command="{Binding NextPageCommand}"/>
+                                        Style="{StaticResource PaginationButtonStyle}"
+                                        Command="{Binding NextPageCommand}"/>
                             </StackPanel>
                         </Grid>
                     </Border>

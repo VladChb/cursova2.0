@@ -7,6 +7,9 @@
 *.userosscache
 *.sln.docstates
 *.userprefs
+.env
+*.env
+secrets.json
 
 ## Build results
 [Bb]in/

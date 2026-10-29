@@ -13,7 +13,18 @@ namespace MediaVault
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
+
+            Services.EnvService.Load();
+
+            var vm = new MainViewModel();
+            vm.FocusSearchRequested += (s, e) => SearchBox.Focus();
+            vm.OpenHelpRequested += (s, e) =>
+            {
+                var help = new Views.HelpWindow { Owner = this };
+                help.ShowDialog();
+            };
+
+            DataContext = vm;
 
         }
 
@@ -28,6 +39,253 @@ namespace MediaVault
                         vm.PageSize = size;
                     }
                 }
+            }
+        }
+
+        private void OpenTmdbFromCard_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem &&
+                menuItem.DataContext is MediaItem item &&
+                !string.IsNullOrEmpty(item.TmdbUrl))
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = item.TmdbUrl,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не вдалося відкрити посилання:\n{ex.Message}");
+                }
+            }
+        }
+
+        private void CopyPath_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem &&
+                menuItem.DataContext is MediaItem item)
+            {
+                try
+                {
+                    Clipboard.SetText(item.FilePath);
+                    // Можна показати коротке сповіщення
+                    StatusText = $"Шлях скопійовано: {item.FilePath}";
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не вдалося скопіювати:\n{ex.Message}");
+                }
+            }
+        }
+
+        private void CopyTitle_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem &&
+                menuItem.DataContext is MediaItem item)
+            {
+                try
+                {
+                    Clipboard.SetText(item.Title);
+                    StatusText = $"Назву скопійовано: {item.Title}";
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не вдалося скопіювати:\n{ex.Message}");
+                }
+            }
+        }
+
+        private void OpenTrackUrlFromCard_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem &&
+                menuItem.DataContext is MediaItem item &&
+                !string.IsNullOrEmpty(item.TrackUrl))
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = item.TrackUrl,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не вдалося відкрити посилання:\n{ex.Message}");
+                }
+            }
+        }
+
+        // ============================================================
+        // КОНТЕКСТНЕ МЕНЮ: ПЕРЕЙМЕНУВАННЯ
+        // ============================================================
+
+        private async void RenameFile_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem &&
+                menuItem.DataContext is MediaItem item)
+            {
+                // Діалог введення нової назви
+                var dialog = new InputDialog("Перейменувати файл", "Введіть нову назву:", item.Title);
+
+
+                if (dialog.ShowDialog() != true)
+                    return;
+
+                string newTitle = dialog.InputText?.Trim();
+
+                if (string.IsNullOrEmpty(newTitle) || newTitle == item.Title)
+                    return;
+
+                try
+                {
+                    // Перевіряємо, чи існує файл
+                    if (!System.IO.File.Exists(item.FilePath))
+                    {
+                        MessageBox.Show("Файл не знайдено на диску!", "Помилка",
+                                        MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    // Формуємо новий шлях
+                    string directory = System.IO.Path.GetDirectoryName(item.FilePath);
+                    string extension = System.IO.Path.GetExtension(item.FilePath);
+                    string newFileName = $"{newTitle}{extension}";
+                    string newFilePath = System.IO.Path.Combine(directory, newFileName);
+
+                    // Перевіряємо, чи файл з такою назвою вже існує
+                    if (System.IO.File.Exists(newFilePath))
+                    {
+                        MessageBox.Show("Файл з такою назвою вже існує!", "Помилка",
+                                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    // Перейменовуємо файл на диску
+                    System.IO.File.Move(item.FilePath, newFilePath);
+
+                    // Оновлюємо модель
+                    item.FilePath = newFilePath;
+                    item.FileName = newFileName;
+                    item.Title = newTitle;
+
+                    // Оновлюємо UI
+                    if (DataContext is MainViewModel vm)
+                    {
+                        vm.ApplyFilter();
+                        await vm.SaveChangesAsync();
+                    }
+
+                    StatusText = $"Файл перейменовано: {newTitle}";
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не вдалося перейменувати файл:\n{ex.Message}",
+                                    "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private string StatusText
+        {
+            get => (DataContext as MainViewModel)?.StatusText ?? "";
+            set
+            {
+                if (DataContext is MainViewModel vm)
+                    vm.StatusText = value;
+            }
+        }
+
+        private void ChooseCoverFromCard_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem &&
+                menuItem.DataContext is MediaItem item)
+            {
+                var dialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Title = "Виберіть обкладинку",
+                    Filter = "Зображення|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp|Всі файли|*.*"
+                };
+
+                if (dialog.ShowDialog() != true)
+                    return;
+
+                try
+                {
+                    string appDataFolder = System.IO.Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                        "MediaVault",
+                        "Covers");
+
+                    if (!System.IO.Directory.Exists(appDataFolder))
+                        System.IO.Directory.CreateDirectory(appDataFolder);
+
+                    string extension = System.IO.Path.GetExtension(dialog.FileName);
+                    string newFileName = $"{item.Id}{extension}";
+                    string newFilePath = System.IO.Path.Combine(appDataFolder, newFileName);
+
+                    System.IO.File.Copy(dialog.FileName, newFilePath, overwrite: true);
+
+                    item.PosterUrl = newFilePath;
+
+                    if (DataContext is MainViewModel vm)
+                        _ = vm.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Помилка: {ex.Message}");
+                }
+            }
+        }
+
+        private async void MarkAsFilm_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem && menuItem.DataContext is MediaItem item)
+            {
+                item.Type = MediaType.Film;
+                if (DataContext is MainViewModel vm)
+                {
+                    vm.ApplyFilter();
+                    vm.UpdateStats();
+                    await vm.SaveChangesAsync();
+                }
+            }
+        }
+
+        private void ClearCategoryFromTools_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Views.CategorySelectionDialog();
+            if (dialog.ShowDialog() == true && dialog.SelectedCategory != null)
+            {
+                if (DataContext is MainViewModel vm)
+                {
+                    vm.ClearCategoryCommand.Execute(dialog.SelectedCategory);
+                }
+            }
+        }
+
+        private async void MarkAsShortVideo_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem && menuItem.DataContext is MediaItem item)
+            {
+                item.Type = MediaType.ShortVideo;
+                if (DataContext is MainViewModel vm)
+                {
+                    vm.ApplyFilter();
+                    vm.UpdateStats();
+                    await vm.SaveChangesAsync();
+                }
+            }
+        }
+
+        private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (DataContext is MainViewModel vm && e.NewValue is MainViewModel.FolderNode node)
+            {
+                vm.SelectFolderNodeCommand.Execute(node);
             }
         }
 
@@ -64,8 +322,8 @@ namespace MediaVault
             }
             else
             {
-                MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-                MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth;
+                MaxHeight = SystemParameters.WorkArea.Height + 16;
+                MaxWidth = SystemParameters.WorkArea.Width + 16;
                 WindowState = WindowState.Maximized;
             }
         }
@@ -73,6 +331,45 @@ namespace MediaVault
         private void CloseWindow_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        private void OpenToolsMenu_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.ContextMenu != null)
+            {
+                button.ContextMenu.PlacementTarget = button;
+                button.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Top;
+                button.ContextMenu.IsOpen = true;
+            }
+        }
+
+        private void OpenDashboard_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                var dashboard = new Views.DashboardWindow(vm.AllMediaItems.ToList())
+                {
+                    Owner = this
+                };
+                dashboard.ShowDialog();
+                vm.IsToolsMode = false;
+            }
+        }
+
+        private void OpenSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var settings = new Views.SettingsWindow { Owner = this };
+            settings.ShowDialog();
+            if (DataContext is MainViewModel vm)
+                vm.IsToolsMode = false;
+        }
+
+        private void OpenHelp_Click(object sender, RoutedEventArgs e)
+        {
+            var help = new Views.HelpWindow { Owner = this };
+            help.ShowDialog();
+            if (DataContext is MainViewModel vm)
+                vm.IsToolsMode = false;
         }
 
         private async void Card_Click(object sender, MouseButtonEventArgs e)

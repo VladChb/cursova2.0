@@ -1,12 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
-    <RootNamespace>MediaVault</RootNamespace>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+		<RootNamespace>MediaVault</RootNamespace>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon />
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AcoustID.NET" Version="1.3.3" />
+		<PackageReference Include="DotNetEnv" Version="3.2.0" />
+		<PackageReference Include="FuzzySharp" Version="2.0.2" />
+		<PackageReference Include="Hqub.Last.fm" Version="2.5.1" />
+		<PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.4" />
+		<PackageReference Include="MetaBrainz.MusicBrainz" Version="8.0.1" />
+		<PackageReference Include="MetaBrainz.MusicBrainz.CoverArt" Version="7.1.0" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" />
+		<PackageReference Include="NAudio" Version="2.2.1" />
+		<PackageReference Include="System.Drawing.Common" Version="8.0.11" />
+		<PackageReference Include="TagLibSharp" Version="2.3.0" />
+		<PackageReference Include="TMDbLib" Version="3.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Update="Themes\LightTheme.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Update="Themes\DarkTheme.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+	</ItemGroup>
 
 </Project>

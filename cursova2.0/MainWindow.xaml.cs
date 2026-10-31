@@ -372,6 +372,19 @@ namespace MediaVault
                 vm.IsToolsMode = false;
         }
 
+        private void OpenSecurityScanner_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                var scanner = new SecurityScannerWindow(vm.AllMediaItems, null)
+                {
+                    Owner = this
+                };
+                scanner.ShowDialog();
+                vm.IsToolsMode = false;
+            }
+        }
+
         private async void Card_Click(object sender, MouseButtonEventArgs e)
         {
             if (sender is FrameworkElement element && element.Tag is MediaItem item)

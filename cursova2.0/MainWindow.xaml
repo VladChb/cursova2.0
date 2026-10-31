@@ -785,30 +785,32 @@
                                 <TextBlock Text="🌐 Усі джерела" Foreground="{DynamicResource TextSecondaryDark}" FontSize="13" FontWeight="SemiBold"/>
                             </Button>
 
-                            <TreeView ItemsSource="{Binding RootFolders}" 
-          Background="Transparent" 
-          BorderThickness="0" 
-          Margin="0,4,0,0"
-          SelectedItemChanged="TreeView_SelectedItemChanged">
-                                <TreeView.ItemContainerStyle>
-                                    <Style TargetType="TreeViewItem">
-                                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
-                                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryDark}"/>
-                                        <Setter Property="FontSize" Value="13"/>
-                                        <Setter Property="Padding" Value="2"/>
-                                    </Style>
-                                </TreeView.ItemContainerStyle>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="300" Margin="0,4,0,0">
+                                <TreeView ItemsSource="{Binding RootFolders}" 
+              Background="Transparent" 
+              BorderThickness="0"
+              SelectedItemChanged="TreeView_SelectedItemChanged">
+                                    <TreeView.ItemContainerStyle>
+                                        <Style TargetType="TreeViewItem">
+                                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryDark}"/>
+                                            <Setter Property="FontSize" Value="13"/>
+                                            <Setter Property="Padding" Value="2"/>
+                                        </Style>
+                                    </TreeView.ItemContainerStyle>
 
-                                <TreeView.ItemTemplate>
-                                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="📂" FontSize="12" Margin="0,0,6,0"/>
-                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </HierarchicalDataTemplate>
-                                </TreeView.ItemTemplate>
-                            </TreeView>
+                                    <TreeView.ItemTemplate>
+                                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="📂" FontSize="12" Margin="0,0,6,0"/>
+                                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding FileCount, StringFormat=' ({0})'}" VerticalAlignment="Center" Foreground="{DynamicResource TextMutedDark}" FontSize="11" Margin="4,0,0,0"/>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+                                    </TreeView.ItemTemplate>
+                                </TreeView>
+                            </ScrollViewer>
                         </StackPanel>
 
                         <!-- ІНСТРУМЕНТИ -->
@@ -839,9 +841,17 @@
         Command="{Binding RemoveFolderCommand}"
         Margin="0,0,0,2">
                                 <TextBlock Text="📂 Видалити папку з колекції" 
-               Foreground="{DynamicResource TextSecondaryDark}" 
-               FontSize="14" 
-               FontWeight="SemiBold"/>
+                Foreground="{DynamicResource TextSecondaryDark}" 
+                FontSize="14" 
+                FontWeight="SemiBold"/>
+                            </Button>
+
+                            <Button Style="{StaticResource CategoryButtonStyle}" Command="{Binding VerifyCollectionCommand}" Margin="0,0,0,2">
+                                <TextBlock Text="✓ Перевірити колекцію" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold"/>
+                            </Button>
+
+                            <Button Style="{StaticResource CategoryButtonStyle}" Click="OpenSecurityScanner_Click" Margin="0,0,0,2">
+                                <TextBlock Text="🛡️ Сканер безпеки" Foreground="{DynamicResource TextSecondaryDark}" FontSize="14" FontWeight="SemiBold"/>
                             </Button>
 
                             <Border Height="1" Background="#2A2A2A" Margin="8,16,8,16"/>

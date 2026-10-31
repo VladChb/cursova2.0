@@ -163,6 +163,7 @@ namespace MediaVault.ViewModels
                 if (SetProperty(ref _isToolsMode, value))
                 {
                     OnPropertyChanged(nameof(IsCategoriesMode));
+                    OnPropertyChanged(nameof(ToolsButtonText));
                 }
             }
         }
@@ -235,6 +236,7 @@ namespace MediaVault.ViewModels
         public RelayCommand ClearCategoryCommand { get; }
 
         public RelayCommand RemoveFolderCommand { get; }
+        public RelayCommand VerifyCollectionCommand { get; }
 
 
 
@@ -277,6 +279,7 @@ namespace MediaVault.ViewModels
             ClearCategoryCommand = new RelayCommand(async param => await ClearCategoryAsync(param));
 
             RemoveFolderCommand = new RelayCommand(async _ => await RemoveFolderAsync());
+            VerifyCollectionCommand = new RelayCommand(_ => VerifyCollectionFiles());
 
             SelectFolderNodeCommand = new RelayCommand(param => { if (param is FolderNode node) SelectedFolder = node; });
             ClearFolderFilterCommand = new RelayCommand(_ => SelectedFolder = null);
@@ -1004,6 +1007,32 @@ namespace MediaVault.ViewModels
                     item.Year = result.Year;
                 return;
             }
+        }
+
+        private void VerifyCollectionFiles()
+        {
+            var missingFiles = AllMediaItems
+                .Where(item => string.IsNullOrWhiteSpace(item.FilePath) || !System.IO.File.Exists(item.FilePath))
+                .ToList();
+
+            if (missingFiles.Count == 0)
+            {
+                StatusText = "Перевірку завершено: відсутніх файлів не знайдено";
+                MessageBox.Show(StatusText, "Перевірка колекції", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            const int maxDisplayedPaths = 25;
+            string missingPaths = string.Join(Environment.NewLine, missingFiles
+                .Take(maxDisplayedPaths)
+                .Select(item => item.FilePath ?? "(шлях не вказано)"));
+
+            string message = $"Знайдено відсутніх файлів: {missingFiles.Count}\n\n{missingPaths}";
+            if (missingFiles.Count > maxDisplayedPaths)
+                message += $"\n… та ще {missingFiles.Count - maxDisplayedPaths}";
+
+            StatusText = $"Знайдено відсутніх файлів: {missingFiles.Count}";
+            MessageBox.Show(message, "Перевірка колекції", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
         private async Task SaveAsync()

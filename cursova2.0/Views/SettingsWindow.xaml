@@ -2,9 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        Title="Налаштування" 
-        Height="550" 
-        Width="700"
+        Title="Налаштування"
+        Height="550" Width="700"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="Transparent"
@@ -12,87 +11,98 @@
         AllowsTransparency="True">
 
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="52" ResizeBorderThickness="12" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
+        <shell:WindowChrome CaptionHeight="52" ResizeBorderThickness="12"
+                            GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
     </shell:WindowChrome.WindowChrome>
 
     <Window.Resources>
+        <!-- ===== CLOSE BUTTON ===== -->
         <Style x:Key="CloseButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryDark}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
+            <Setter Property="Height" Value="34"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource DangerColor}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF3B30"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
 
+        <!-- ===== PRIMARY BUTTON ===== -->
         <Style x:Key="PrimaryButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{DynamicResource AccentColor}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentText}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="Padding" Value="20,11"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="21">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="8" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentDeep}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource AccentHover}"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
 
+        <!-- ===== SECONDARY BUTTON ===== -->
         <Style x:Key="SecondaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
+            <Setter Property="Background" Value="{DynamicResource BackgroundCard}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="Padding" Value="20,11"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="21">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="8" Padding="{TemplateBinding Padding}"
+                                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource CardBorder}"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
 
-        <!-- СТИЛЬ TEXTBOX -->
+        <!-- ===== TEXTBOX ===== -->
         <Style x:Key="ModernTextBoxStyle" TargetType="TextBox">
             <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
-            <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryLight}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource AccentColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="14,0"/>
             <Setter Property="FontSize" Value="13"/>
@@ -100,27 +110,28 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}" 
-                        CornerRadius="10"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}">
-                            <ScrollViewer x:Name="PART_ContentHost" 
-                                  Margin="{TemplateBinding Padding}"
-                                  VerticalAlignment="Center"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalScrollBarVisibility="Hidden"
-                                  HorizontalScrollBarVisibility="Hidden"/>
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="1">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalScrollBarVisibility="Hidden"
+                                          HorizontalScrollBarVisibility="Hidden"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsFocused" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource BackgroundSecondary}"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
 
+        <!-- ===== CHECKBOX ===== -->
         <Style x:Key="ModernCheckBoxStyle" TargetType="CheckBox">
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
             <Setter Property="FontSize" Value="13"/>
@@ -129,8 +140,14 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
                         <StackPanel Orientation="Horizontal">
-                            <Border x:Name="box" Width="20" Height="20" CornerRadius="6" Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" VerticalAlignment="Center">
-                                <TextBlock x:Name="check" Text="✓" FontSize="12" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+                            <Border x:Name="box" Width="20" Height="20" CornerRadius="6"
+                                    Background="{DynamicResource InputBackground}"
+                                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"
+                                    VerticalAlignment="Center">
+                                <TextBlock x:Name="check" Text="✓" FontSize="12" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentText}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Visibility="Collapsed"/>
                             </Border>
                             <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -140,6 +157,49 @@
                                 <Setter TargetName="box" Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
                                 <Setter TargetName="check" Property="Visibility" Value="Visible"/>
                             </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="box" Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ===== RADIOBUTTON (кастомний) ===== -->
+        <Style x:Key="ModernRadioButtonStyle" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Bd" Background="Transparent" CornerRadius="8"
+                                Padding="12,10" BorderThickness="1"
+                                BorderBrush="Transparent">
+                            <StackPanel Orientation="Horizontal">
+                                <Border x:Name="circle" Width="20" Height="20" CornerRadius="10"
+                                        Background="{DynamicResource InputBackground}"
+                                        BorderBrush="{DynamicResource BorderColor}" BorderThickness="2"
+                                        VerticalAlignment="Center">
+                                    <Ellipse x:Name="dot" Width="10" Height="10"
+                                             Fill="{DynamicResource AccentColor}"
+                                             HorizontalAlignment="Center" VerticalAlignment="Center"
+                                             Visibility="Collapsed"/>
+                                </Border>
+                                <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="circle" Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
+                                <Setter TargetName="dot" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource BackgroundCard}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource CardHover}"/>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -147,7 +207,11 @@
         </Style>
     </Window.Resources>
 
-    <Border Background="{DynamicResource BackgroundPrimary}" CornerRadius="16" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Margin="8">
+    <Border Background="{DynamicResource BackgroundPrimary}" CornerRadius="0"
+            BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Margin="8">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" Opacity="0.6" ShadowDepth="0" BlurRadius="40"/>
+        </Border.Effect>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="52"/>
@@ -155,90 +219,145 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- ЗАГОЛОВОК -->
-            <Border Grid.Row="0" Background="{DynamicResource SidebarBackground}" CornerRadius="16,16,0,0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <!-- ===== ЗАГОЛОВОК ===== -->
+            <Border Grid.Row="0" Background="{DynamicResource SidebarBackground}"
+                    CornerRadius="0"
+                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="20,0">
-                        <TextBlock Text="⚙️" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock Text="Налаштування" FontSize="16" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                        <Border Width="28" Height="28" Background="{DynamicResource AccentColor}"
+                                CornerRadius="6" Margin="0,0,10,0" VerticalAlignment="Center">
+                            <TextBlock Text="⚙" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource AccentText}"/>
+                        </Border>
+                        <TextBlock Text="Налаштування" FontSize="15" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryDark}" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Button Grid.Column="1" Content="✕" Style="{StaticResource CloseButtonStyle}" Click="Close_Click" Margin="0,0,12,0" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    <Button Grid.Column="1" Content="✕" Style="{StaticResource CloseButtonStyle}"
+                            Click="Close_Click" Margin="0,0,12,0"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
 
-            <!-- КОНТЕНТ -->
+            
+            
+            
+            <!-- ===== КОНТЕНТ ===== -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24">
                 <StackPanel>
-                    <!-- ЗАГАЛЬНІ -->
-                    <TextBlock Text="ЗАГАЛЬНІ" Foreground="{DynamicResource TextSecondaryLight}" FontSize="11" FontWeight="Bold" Margin="0,0,0,12"/>
 
-                    <TextBlock Text="ТЕМА ОФОРМЛЕННЯ" Foreground="{DynamicResource TextSecondaryLight}" FontSize="11" FontWeight="Bold" Margin="0,0,0,12"/>
+                    <TextBlock Text="ЗАГАЛЬНІ" Foreground="{DynamicResource TextMutedDark}"
+                               FontSize="11" FontWeight="Bold" Margin="0,0,0,12"/>
 
-                    <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="12" Padding="20" Margin="0,0,0,20" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                    <!-- ТЕМА -->
+                    <TextBlock Text="ТЕМА ОФОРМЛЕННЯ" Foreground="{DynamicResource TextSecondaryLight}"
+                               FontSize="11" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                    <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="10"
+                            Padding="12" Margin="0,0,0,20"
+                            BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
                         <StackPanel>
-                            <RadioButton x:Name="LightThemeRadio" Content="☀️ Світла тема" GroupName="Theme" Margin="0,0,0,10" Foreground="{DynamicResource TextPrimaryLight}"/>
-                            <RadioButton x:Name="DarkThemeRadio" Content="🌙 Темна тема" GroupName="Theme" Foreground="{DynamicResource TextPrimaryLight}"/>
+                            <RadioButton x:Name="LightThemeRadio" GroupName="Theme"
+                                         Content="☀️ Світла тема"
+                                         Style="{StaticResource ModernRadioButtonStyle}"
+                                         Margin="0,0,0,6"/>
+                            <RadioButton x:Name="DarkThemeRadio" GroupName="Theme"
+                                         Content="🌙 Темна тема"
+                                         Style="{StaticResource ModernRadioButtonStyle}"/>
                         </StackPanel>
                     </Border>
 
-                    <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="12" Padding="20" Margin="0,0,0,20" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                    <!-- ІНШІ НАЛАШТУВАННЯ -->
+                    <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="10"
+                            Padding="20" Margin="0,0,0,20"
+                            BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
                         <StackPanel>
-                            <CheckBox x:Name="AutoSaveCheckBox" Content="Автоматично зберігати колекцію" Style="{StaticResource ModernCheckBoxStyle}" Margin="0,0,0,12"/>
-                            <CheckBox x:Name="AutoScanCheckBox" Content="Сканувати папку при запуску" Style="{StaticResource ModernCheckBoxStyle}" Margin="0,0,0,12"/>
-                            <CheckBox x:Name="ConfirmDeleteCheckBox" Content="Підтверджувати видалення файлів" Style="{StaticResource ModernCheckBoxStyle}" IsChecked="True"/>
+                            <CheckBox x:Name="AutoSaveCheckBox" Content="Автоматично зберігати колекцію"
+                                      Style="{StaticResource ModernCheckBoxStyle}" Margin="0,0,0,12"/>
+                            <CheckBox x:Name="AutoScanCheckBox" Content="Сканувати папку при запуску"
+                                      Style="{StaticResource ModernCheckBoxStyle}" Margin="0,0,0,12"/>
+                            <CheckBox x:Name="ConfirmDeleteCheckBox" Content="Підтверджувати видалення файлів"
+                                      Style="{StaticResource ModernCheckBoxStyle}" IsChecked="True"/>
                         </StackPanel>
                     </Border>
 
                     <!-- API КЛЮЧІ -->
-                    <TextBlock Text="API КЛЮЧІ" Foreground="{DynamicResource TextSecondaryLight}" FontSize="11" FontWeight="Bold" Margin="0,0,0,12"/>
+                    <TextBlock Text="API КЛЮЧІ" Foreground="{DynamicResource TextMutedDark}"
+                               FontSize="11" FontWeight="Bold" Margin="0,0,0,10"/>
 
-                    <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="12" Padding="20" Margin="0,0,0,20" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                    <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="10"
+                            Padding="20" Margin="0,0,0,20"
+                            BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
                         <StackPanel>
-                            <TextBlock Text="TMDb API Key" Foreground="{DynamicResource TextPrimaryLight}" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
-                            <TextBox x:Name="TmdbKeyTextBox" Style="{StaticResource ModernTextBoxStyle}" Height="40" Margin="0,0,0,16"/>
+                            <TextBlock Text="TMDb API Key" Foreground="{DynamicResource TextPrimaryLight}"
+                                       FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                            <TextBox x:Name="TmdbKeyTextBox" Style="{StaticResource ModernTextBoxStyle}"
+                                     Height="40" Margin="0,0,0,16"/>
 
-                            <TextBlock Text="Last.fm API Key" Foreground="{DynamicResource TextPrimaryLight}" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                            <TextBlock Text="Last.fm API Key" Foreground="{DynamicResource TextPrimaryLight}"
+                                       FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
                             <TextBox x:Name="LastFmKeyTextBox" Style="{StaticResource ModernTextBoxStyle}" Height="40"/>
                         </StackPanel>
                     </Border>
 
                     <!-- ДАНІ -->
-                    <TextBlock Text="ДАНІ" Foreground="{DynamicResource TextSecondaryLight}" FontSize="11" FontWeight="Bold" Margin="0,0,0,12"/>
+                    <TextBlock Text="ДАНІ" Foreground="{DynamicResource TextMutedDark}"
+                               FontSize="11" FontWeight="Bold" Margin="0,0,0,10"/>
 
-                    <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="12" Padding="20" Margin="0,0,0,20" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                    <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="10"
+                            Padding="20" Margin="0,0,0,20"
+                            BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
                         <StackPanel>
-                            <TextBlock Text="Шлях до даних:" Foreground="{DynamicResource TextPrimaryLight}" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
-                            <TextBlock x:Name="DataPathText" Foreground="{DynamicResource TextSecondaryLight}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,16"/>
+                            <TextBlock Text="Шлях до даних:" Foreground="{DynamicResource TextPrimaryLight}"
+                                       FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                            <TextBlock x:Name="DataPathText" Foreground="{DynamicResource TextSecondaryLight}"
+                                       FontSize="12" TextWrapping="Wrap" Margin="0,0,0,16"/>
 
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="📂 Відкрити папку даних" Style="{StaticResource SecondaryButtonStyle}" Click="OpenDataFolder_Click" Margin="0,0,8,0"/>
-                                <Button Content="🗑️ Очистити кеш" Style="{StaticResource SecondaryButtonStyle}" Click="ClearCache_Click"/>
+                                <Button Content="📂 Відкрити папку даних"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Click="OpenDataFolder_Click" Margin="0,0,8,0"/>
+                                <Button Content="🗑️ Очистити кеш"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Click="ClearCache_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
 
                     <!-- ПРО ПРОГРАМУ -->
-                    <TextBlock Text="ПРО ПРОГРАМУ" Foreground="{DynamicResource TextSecondaryLight}" FontSize="11" FontWeight="Bold" Margin="0,0,0,12"/>
+                    <TextBlock Text="ПРО ПРОГРАМУ" Foreground="{DynamicResource TextMutedDark}"
+                               FontSize="11" FontWeight="Bold" Margin="0,0,0,10"/>
 
-                    <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="12" Padding="20" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                    <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="10"
+                            Padding="20"
+                            BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
                         <StackPanel>
-                            <TextBlock Text="MediaVault" Foreground="{DynamicResource TextPrimaryLight}" FontSize="18" FontWeight="Bold"/>
-                            <TextBlock Text="Версія 2.0.0" Foreground="{DynamicResource TextSecondaryLight}" FontSize="12" Margin="0,4,0,0"/>
-                            <TextBlock Text="Курсова робота з дисципліни 'Конструювання програмного забезпечення'" Foreground="{DynamicResource TextSecondaryLight}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                            <TextBlock Text="MediaVault" Foreground="{DynamicResource TextPrimaryLight}"
+                                       FontSize="18" FontWeight="Bold"/>
+                            <TextBlock Text="Версія 2.0.0" Foreground="{DynamicResource TextSecondaryLight}"
+                                       FontSize="12" Margin="0,4,0,0"/>
+                            <TextBlock Text="Курсова робота з дисципліни 'Конструювання програмного забезпечення'"
+                                       Foreground="{DynamicResource TextSecondaryLight}"
+                                       FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
             </ScrollViewer>
 
-            <!-- НИЖНЯ ПАНЕЛЬ -->
-            <Border Grid.Row="2" Background="{DynamicResource BackgroundSecondary}" Padding="24,14" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" CornerRadius="0,0,16,16">
+            <!-- ===== НИЖНЯ ПАНЕЛЬ ===== -->
+            <Border Grid.Row="2" Background="{DynamicResource BackgroundSecondary}"
+                    Padding="24,14"
+                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Скасувати" Style="{StaticResource SecondaryButtonStyle}" Click="Close_Click" Margin="0,0,8,0"/>
-                    <Button Content="Зберегти" Style="{StaticResource PrimaryButtonStyle}" Click="Save_Click"/>
+                    <Button Content="Скасувати" Style="{StaticResource SecondaryButtonStyle}"
+                            Click="Close_Click" Margin="0,0,8,0"/>
+                    <Button Content="Зберегти" Style="{StaticResource PrimaryButtonStyle}"
+                            Click="Save_Click"/>
                 </StackPanel>
             </Border>
         </Grid>

@@ -5,9 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
-        Title="Дублікати" 
-        Height="700" 
-        Width="1000"
+        Title="Дублікати"
+        Height="700" Width="1000"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResize"
         Background="Transparent"
@@ -15,60 +14,128 @@
         AllowsTransparency="True">
 
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="52" ResizeBorderThickness="12" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
+        <shell:WindowChrome CaptionHeight="52" ResizeBorderThickness="12"
+                            GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
     </shell:WindowChrome.WindowChrome>
 
     <Window.Resources>
+        <!-- ===== CLOSE BUTTON ===== -->
         <Style x:Key="CloseButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryDark}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
+            <Setter Property="Height" Value="34"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource DangerColor}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF3B30"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
 
+        <!-- ===== PRIMARY BUTTON ===== -->
         <Style x:Key="PrimaryButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{DynamicResource AccentColor}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentText}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="Padding" Value="20,11"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="21">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="8" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentDeep}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource AccentHover}"/>
-                </Trigger>
-            </Style.Triggers>
+        </Style>
+
+        <!-- ===== SECONDARY BUTTON ===== -->
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource BackgroundCard}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="20,11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="8" Padding="{TemplateBinding Padding}"
+                                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ===== DANGER BUTTON ===== -->
+        <Style x:Key="DangerButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource DangerColor}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
-    <Border Background="{DynamicResource BackgroundPrimary}" CornerRadius="16" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Margin="8">
+    <Border Background="{DynamicResource BackgroundPrimary}"
+            CornerRadius="0"
+            BorderBrush="{DynamicResource BorderColor}"
+            BorderThickness="1"
+            Margin="8">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" Opacity="0.5" ShadowDepth="0" BlurRadius="40"/>
+        </Border.Effect>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="52"/>
@@ -77,34 +144,49 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- ЗАГОЛОВОК -->
-            <Border Grid.Row="0" Background="{DynamicResource SidebarBackground}" CornerRadius="16,16,0,0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <!-- ===== ЗАГОЛОВОК ===== -->
+            <Border Grid.Row="0" Background="{DynamicResource SidebarBackground}"
+                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="20,0">
-                        <TextBlock Text="🔍" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock Text="Пошук дублікатів" FontSize="16" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                        <Border Width="28" Height="28" Background="{DynamicResource AccentColor}"
+                                CornerRadius="6" Margin="0,0,10,0" VerticalAlignment="Center">
+                            <TextBlock Text="🔍" FontSize="14"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Пошук дублікатів" FontSize="15" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryDark}"
+                                   VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Button Grid.Column="1" Content="✕" Style="{StaticResource CloseButtonStyle}" Click="Close_Click" Margin="0,0,12,0" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    <Button Grid.Column="1" Content="✕" Style="{StaticResource CloseButtonStyle}"
+                            Click="Close_Click" Margin="0,0,12,0"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
 
-            <!-- СТАТИСТИКА -->
-            <Border Grid.Row="1" Background="{DynamicResource BackgroundSecondary}" Padding="24,16" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1">
+            <!-- ===== СТАТИСТИКА ===== -->
+            <Border Grid.Row="1" Background="{DynamicResource BackgroundSecondary}"
+                    Padding="24,16"
+                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock x:Name="StatsText" Foreground="{DynamicResource TextPrimaryLight}" FontSize="14" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="StatsText" Foreground="{DynamicResource TextPrimaryLight}"
+                               FontSize="14" FontWeight="SemiBold"/>
                 </StackPanel>
             </Border>
 
-            <!-- СПИСОК ГРУП -->
+            <!-- ===== СПИСОК ГРУП ===== -->
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="24">
                 <ItemsControl x:Name="GroupsList">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="12" Margin="0,0,0,16" Padding="16" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                            <Border Background="{DynamicResource BackgroundSecondary}"
+                                    CornerRadius="10" Margin="0,0,0,16" Padding="16"
+                                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
                                 <StackPanel>
                                     <!-- Заголовок групи -->
                                     <Grid Margin="0,0,0,12">
@@ -115,48 +197,53 @@
                                         <StackPanel Grid.Column="0">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="📄" FontSize="16" Margin="0,0,8,0"/>
-                                                <TextBlock Text="{Binding Count, StringFormat={}{0} файлів}" Foreground="{DynamicResource TextPrimaryLight}" FontSize="14" FontWeight="Bold"/>
-                                                <TextBlock Text=" · " Foreground="{DynamicResource TextSecondaryLight}" FontSize="14"/>
-                                                <TextBlock Text="{Binding FormattedTotalSize}" Foreground="{DynamicResource TextSecondaryLight}" FontSize="14"/>
+                                                <TextBlock Text="{Binding Count, StringFormat={}{0} файлів}"
+                                                           Foreground="{DynamicResource TextPrimaryLight}"
+                                                           FontSize="14" FontWeight="Bold"/>
+                                                <TextBlock Text=" · "
+                                                           Foreground="{DynamicResource TextSecondaryLight}"
+                                                           FontSize="14"/>
+                                                <TextBlock Text="{Binding FormattedTotalSize}"
+                                                           Foreground="{DynamicResource TextSecondaryLight}"
+                                                           FontSize="14"/>
                                             </StackPanel>
-                                            <TextBlock Text="{Binding MatchTypeLabel}" Foreground="{DynamicResource AccentColor}" FontSize="11" Margin="24,4,0,0"/>
+                                            <TextBlock Text="{Binding MatchTypeLabel}"
+                                                       Foreground="{DynamicResource AccentColor}"
+                                                       FontSize="11" Margin="24,4,0,0"/>
                                         </StackPanel>
-                                        <Button Grid.Column="1" 
-                                                Content="🗑️ Видалити всі копії" 
-                                                Background="#FF3B30"
-                                                Foreground="White"
-                                                BorderThickness="0"
-                                                Padding="14,8"
-                                                FontSize="12"
-                                                FontWeight="SemiBold"
-                                                Cursor="Hand"
+                                        <Button Grid.Column="1"
+                                                Content="🗑️ Видалити всі копії"
+                                                Style="{StaticResource DangerButtonStyle}"
                                                 Click="DeleteGroup_Click"
-                                                Tag="{Binding}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}" CornerRadius="8">
-                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
+                                                Tag="{Binding}"/>
                                     </Grid>
 
                                     <!-- Файли в групі -->
                                     <ItemsControl ItemsSource="{Binding Items}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Background="{DynamicResource InputBackground}" CornerRadius="8" Padding="12,8" Margin="0,0,0,6">
+                                                <Border Background="{DynamicResource InputBackground}"
+                                                        CornerRadius="8" Padding="12,8" Margin="0,0,0,6"
+                                                        BorderBrush="{DynamicResource BorderColor}"
+                                                        BorderThickness="1">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel Grid.Column="0">
-                                                            <TextBlock Text="{Binding Title}" Foreground="{DynamicResource TextPrimaryLight}" FontSize="13" FontWeight="SemiBold"/>
-                                                            <TextBlock Text="{Binding FilePath}" Foreground="{DynamicResource TextSecondaryLight}" FontSize="11" TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Text="{Binding Title}"
+                                                                       Foreground="{DynamicResource TextPrimaryLight}"
+                                                                       FontSize="13" FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding FilePath}"
+                                                                       Foreground="{DynamicResource TextSecondaryLight}"
+                                                                       FontSize="11" TextTrimming="CharacterEllipsis"/>
                                                         </StackPanel>
-                                                        <TextBlock Grid.Column="1" Text="{Binding FormattedSize}" Foreground="{DynamicResource TextSecondaryLight}" FontSize="12" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{Binding FormattedSize}"
+                                                                   Foreground="{DynamicResource TextSecondaryLight}"
+                                                                   FontSize="12" VerticalAlignment="Center"
+                                                                   Margin="12,0,0,0"/>
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>
@@ -169,30 +256,18 @@
                 </ItemsControl>
             </ScrollViewer>
 
-            <!-- НИЖНЯ ПАНЕЛЬ -->
-            <Border Grid.Row="3" Background="{DynamicResource BackgroundSecondary}" Padding="24,14" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" CornerRadius="0,0,16,16">
+            <!-- ===== НИЖНЯ ПАНЕЛЬ ===== -->
+            <Border Grid.Row="3" Background="{DynamicResource BackgroundSecondary}"
+                    Padding="24,14"
+                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Закрити" 
-                            Background="{DynamicResource InputBackground}"
-                            Foreground="{DynamicResource TextPrimaryLight}"
-                            BorderThickness="0"
-                            Padding="20,12"
-                            FontSize="13"
-                            FontWeight="SemiBold"
-                            Cursor="Hand"
+                    <Button Content="Закрити"
+                            Style="{StaticResource SecondaryButtonStyle}"
                             Click="Close_Click"
-                            Margin="0,0,8,0">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}" CornerRadius="21">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                    <Button Content="🗑️ Видалити всі дублікати" 
+                            Margin="0,0,8,0"/>
+                    <Button Content="🗑️ Видалити всі дублікати"
                             Style="{StaticResource PrimaryButtonStyle}"
-                            Background="#FF3B30"
+                            Background="{DynamicResource DangerColor}"
                             Click="DeleteAll_Click"/>
                 </StackPanel>
             </Border>

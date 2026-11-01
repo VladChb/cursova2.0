@@ -1,45 +1,92 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Windows;
+using MediaVault.Models;
 
 namespace MediaVault.Services
 {
     public static class ThemeService
     {
-        private static string _currentTheme = "Light";
+        private static readonly string DataFolder = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "MediaVault");
 
-        public static string CurrentTheme => _currentTheme;
+        private static readonly string SettingsPath = Path.Combine(DataFolder, "settings.json");
 
-        public static event EventHandler ThemeChanged;
+        public static string CurrentTheme { get; private set; } = "Dark";
 
-        public static void ApplyTheme(string theme)
+        /// <summary>
+        /// Застосовує тему до всього застосунку.
+        /// </summary>
+        public static void ApplyTheme(string themeName)
         {
-            if (string.IsNullOrEmpty(theme) ||
-                (theme != "Light" && theme != "Dark"))
-                theme = "Light";
-
-            _currentTheme = theme;
+            if (string.IsNullOrWhiteSpace(themeName))
+                themeName = "Dark";
 
             var app = Application.Current;
             if (app == null) return;
 
-            var toRemove = app.Resources.MergedDictionaries
-                .Where(d => d.Source != null &&
-                    (d.Source.OriginalString.Contains("LightTheme", StringComparison.OrdinalIgnoreCase) ||
-                     d.Source.OriginalString.Contains("DarkTheme", StringComparison.OrdinalIgnoreCase)))
-                .ToList();
+            var dicts = app.Resources.MergedDictionaries;
 
-            foreach (var oldDict in toRemove)
-                app.Resources.MergedDictionaries.Remove(oldDict);
+            // Знаходимо старий словник теми
+            var old = dicts.FirstOrDefault(d =>
+                d.Source != null &&
+                (d.Source.OriginalString.Contains("DarkTheme") ||
+                 d.Source.OriginalString.Contains("LightTheme")));
 
+            // Створюємо новий
             var newDict = new ResourceDictionary
             {
-                Source = new Uri($"pack://application:,,,/Themes/{theme}Theme.xaml", UriKind.Absolute)
+                Source = new Uri($"Themes/{themeName}Theme.xaml", UriKind.Relative)
             };
 
-            app.Resources.MergedDictionaries.Insert(0, newDict);
+            // Замінюємо
+            if (old != null)
+                dicts.Remove(old);
 
-            ThemeChanged?.Invoke(null, EventArgs.Empty);
+            dicts.Insert(0, newDict); // на початок, щоб інші ресурси могли перекривати
+
+            CurrentTheme = themeName;
+        }
+
+        /// <summary>
+        /// Перемикає тему між Dark та Light.
+        /// </summary>
+        public static void Toggle()
+        {
+            ApplyTheme(CurrentTheme == "Dark" ? "Light" : "Dark");
+        }
+
+        /// <summary>
+        /// Читає збережену тему з settings.json.
+        /// </summary>
+        public static string LoadSavedTheme()
+        {
+            try
+            {
+                if (File.Exists(SettingsPath))
+                {
+                    var json = File.ReadAllText(SettingsPath);
+                    var settings = JsonSerializer.Deserialize<AppSettings>(json);
+                    return settings?.Theme ?? "Dark";
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"LoadSavedTheme: {ex.Message}");
+            }
+            return "Dark";
+        }
+
+        /// <summary>
+        /// Ініціалізація при старті: читає збережену тему і застосовує.
+        /// </summary>
+        public static void Initialize()
+        {
+            var theme = LoadSavedTheme();
+            ApplyTheme(theme);
         }
     }
 }

@@ -25,12 +25,16 @@ namespace MediaVault.Views
             TmdbKeyTextBox.Text = EnvService.Get("TMDB_API_KEY", "");
             LastFmKeyTextBox.Text = EnvService.Get("LASTFM_API_KEY", "");
 
-            AutoSaveCheckBox.IsChecked = true;
-            AutoScanCheckBox.IsChecked = false;
-            ConfirmDeleteCheckBox.IsChecked = true;
+            // Завантажуємо збережені налаштування
+            var settings = LoadSettings();
+            AutoSaveCheckBox.IsChecked = settings.AutoSave;
+            AutoScanCheckBox.IsChecked = settings.AutoScan;
+            ConfirmDeleteCheckBox.IsChecked = settings.ConfirmDelete;
 
+            // Тема — з ThemeService (він уже знає поточну)
             LoadCurrentTheme();
 
+            // Підписка ПІСЛЯ LoadCurrentTheme — щоб не викликати ApplyTheme двічі
             LightThemeRadio.Checked += (s, e) => ThemeService.ApplyTheme("Light");
             DarkThemeRadio.Checked += (s, e) => ThemeService.ApplyTheme("Dark");
         }
@@ -41,6 +45,42 @@ namespace MediaVault.Views
                 DarkThemeRadio.IsChecked = true;
             else
                 LightThemeRadio.IsChecked = true;
+        }
+
+        private AppSettings LoadSettings()
+        {
+            try
+            {
+                string settingsPath = Path.Combine(_dataFolder, "settings.json");
+                if (File.Exists(settingsPath))
+                {
+                    string json = File.ReadAllText(settingsPath);
+                    return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Помилка читання налаштувань: {ex.Message}");
+            }
+            return new AppSettings();
+        }
+
+        private static string LoadSavedTheme()
+        {
+            try
+            {
+                var path = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "MediaVault", "settings.json");
+                if (File.Exists(path))
+                {
+                    var json = File.ReadAllText(path);
+                    var settings = JsonSerializer.Deserialize<AppSettings>(json);
+                    return settings?.Theme ?? "Dark";
+                }
+            }
+            catch { }
+            return "Dark";
         }
 
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -74,7 +114,14 @@ namespace MediaVault.Views
 
                 File.WriteAllText(envPath, envContent);
 
-                SaveTheme(ThemeService.CurrentTheme);
+                // Зберігаємо ВСІ налаштування, включно з темою
+                SaveSettings(new AppSettings
+                {
+                    Theme = ThemeService.CurrentTheme,
+                    AutoSave = AutoSaveCheckBox.IsChecked == true,
+                    AutoScan = AutoScanCheckBox.IsChecked == true,
+                    ConfirmDelete = ConfirmDeleteCheckBox.IsChecked == true
+                });
 
                 MessageBox.Show("Налаштування збережено!\n\nЗміни API-ключів набудуть чинності після перезапуску.",
                                 "Успіх",
@@ -92,7 +139,7 @@ namespace MediaVault.Views
             }
         }
 
-        private void SaveTheme(string theme)
+        private void SaveSettings(AppSettings settings)
         {
             try
             {
@@ -101,27 +148,13 @@ namespace MediaVault.Views
                 if (!Directory.Exists(_dataFolder))
                     Directory.CreateDirectory(_dataFolder);
 
-                AppSettings settings;
-
-                if (File.Exists(settingsPath))
-                {
-                    string json = File.ReadAllText(settingsPath);
-                    settings = JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
-                }
-                else
-                {
-                    settings = new AppSettings();
-                }
-
-                settings.Theme = theme;
-
                 var options = new JsonSerializerOptions { WriteIndented = true };
-                string newJson = JsonSerializer.Serialize(settings, options);
-                File.WriteAllText(settingsPath, newJson);
+                string json = JsonSerializer.Serialize(settings, options);
+                File.WriteAllText(settingsPath, json);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Помилка збереження теми: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Помилка збереження налаштувань: {ex.Message}");
             }
         }
 

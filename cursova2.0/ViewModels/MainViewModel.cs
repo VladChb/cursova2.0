@@ -721,6 +721,7 @@ namespace MediaVault.ViewModels
                 foreach (var item in AllMediaItems)
                     ApplyLocalVisuals(item);
 
+                BuildFolderTree();
                 CurrentPage = 1;
                 ApplyFilter();
                 UpdateStats();
@@ -804,6 +805,7 @@ namespace MediaVault.ViewModels
                 }
 
                 ApplyFilter();
+                BuildFolderTree();
                 UpdateStats();
                 await SaveAsync();
 

@@ -15,521 +15,638 @@
         WindowStyle="None"
         AllowsTransparency="True">
 
-    <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="52"
+	<shell:WindowChrome.WindowChrome>
+		<shell:WindowChrome CaptionHeight="52"
                             ResizeBorderThickness="12"
                             GlassFrameThickness="0"
                             CornerRadius="0"
                             UseAeroCaptionButtons="False"/>
-    </shell:WindowChrome.WindowChrome>
+	</shell:WindowChrome.WindowChrome>
 
-    <Window.Resources>
-        <converters:InvertBoolConverter x:Key="InvertBoolConverter"/>
-        <converters:ShortenHashConverter x:Key="ShortenHashConverter"/>
+	<Window.Resources>
+		<converters:InvertBoolConverter x:Key="InvertBoolConverter"/>
+		<converters:ShortenHashConverter x:Key="ShortenHashConverter"/>
 
-        <!-- Кнопки візуально узгоджені з головним вікном -->
-        <Style x:Key="WindowButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryDark}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonBorder" Property="Background" Value="#2A2A2A"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+		<!-- ===== WINDOW BUTTONS ===== -->
+		<Style x:Key="WindowButtonStyle" TargetType="Button">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimaryDark}"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Width" Value="40"/>
+			<Setter Property="Height" Value="34"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6">
+							<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter TargetName="Bd" Property="Background" Value="{DynamicResource CardHover}"/>
+								<Setter Property="Foreground" Value="{DynamicResource TextPrimaryDark}"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 
-        <Style x:Key="CloseButtonStyle" TargetType="Button" BasedOn="{StaticResource WindowButtonStyle}">
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF3B30"/>
-                    <Setter Property="Foreground" Value="White"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+		<Style x:Key="CloseButtonStyle" TargetType="Button" BasedOn="{StaticResource WindowButtonStyle}">
+			<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property="Background" Value="{DynamicResource DangerColor}"/>
+					<Setter Property="Foreground" Value="White"/>
+				</Trigger>
+			</Style.Triggers>
+		</Style>
 
-        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{DynamicResource AccentColor}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="16,12"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.88"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.42"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+		<!-- ===== PRIMARY BUTTON ===== -->
+		<Style x:Key="PrimaryButtonStyle" TargetType="Button">
+			<Setter Property="Background" Value="{DynamicResource AccentColor}"/>
+			<Setter Property="Foreground" Value="{DynamicResource AccentText}"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="FontSize" Value="13"/>
+			<Setter Property="Padding" Value="16,11"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+							<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentHover}"/>
+							</Trigger>
+							<Trigger Property="IsPressed" Value="True">
+								<Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentDeep}"/>
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="False">
+								<Setter TargetName="Bd" Property="Opacity" Value="0.42"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 
-        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="16,11"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.78"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+		<!-- ===== SECONDARY BUTTON ===== -->
+		<Style x:Key="SecondaryButtonStyle" TargetType="Button">
+			<Setter Property="Background" Value="{DynamicResource BackgroundCard}"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="FontSize" Value="13"/>
+			<Setter Property="Padding" Value="16,11"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="8" Padding="{TemplateBinding Padding}"
+                                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+							<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="False">
+								<Setter TargetName="Bd" Property="Opacity" Value="0.4"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 
-        <Style x:Key="SectionLabelStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource TextMutedDark}"/>
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-        </Style>
+		<!-- ===== SECTION LABEL ===== -->
+		<Style x:Key="SectionLabelStyle" TargetType="TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource TextMutedDark}"/>
+			<Setter Property="FontSize" Value="10"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="Margin" Value="0,0,0,10"/>
+		</Style>
 
-        <Style x:Key="PanelCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource BackgroundCard}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="14"/>
-            <Setter Property="Padding" Value="16"/>
-        </Style>
+		<!-- ===== PANEL CARD ===== -->
+		<Style x:Key="PanelCardStyle" TargetType="Border">
+			<Setter Property="Background" Value="{DynamicResource BackgroundCard}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="10"/>
+			<Setter Property="Padding" Value="16"/>
+		</Style>
 
+        <!-- ===== COMBOBOX (кастомний, темна тема) ===== -->
         <Style TargetType="ComboBox">
             <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="10,0"/>
-        </Style>
-
-        <Style TargetType="ComboBoxItem">
-            <Setter Property="Padding" Value="12,9"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
-            <Setter Property="Background" Value="{DynamicResource BackgroundSecondary}"/>
-        </Style>
-
-        <Style x:Key="ModernCheckBoxStyle" TargetType="CheckBox">
-            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryLight}"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="12,0"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="0,0,0,11"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton"
+                                  Focusable="False"
+                                  ClickMode="Press"
+                                  IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                  Background="Transparent"
+                                  BorderThickness="0">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="Bd"
+                                        Background="{TemplateBinding Background}"
+                                        CornerRadius="8"
+                                        BorderBrush="{DynamicResource BorderColor}"
+                                        BorderThickness="1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <ContentPresenter Grid.Column="0"
+                                                          Margin="12,0"
+                                                          VerticalAlignment="Center"
+                                                          HorizontalAlignment="Left"
+                                                          Content="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType=ComboBox}}"/>
+
+                                                <TextBlock Grid.Column="1"
+                                                   Text="▾"
+                                                   FontSize="11"
+                                                   Margin="0,0,12,0"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextSecondaryLight}"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <Popup x:Name="PART_Popup"
+                           AllowsTransparency="True"
+                           Placement="Bottom"
+                           IsOpen="{TemplateBinding IsDropDownOpen}"
+                           PopupAnimation="Fade">
+                                <Border Background="{DynamicResource BackgroundSecondary}"
+                                CornerRadius="8"
+                                Margin="0,4,0,0"
+                                BorderBrush="{DynamicResource BorderLight}"
+                                BorderThickness="1"
+                                MinWidth="{TemplateBinding ActualWidth}"
+                                MaxHeight="300">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#000000" Opacity="0.5" ShadowDepth="6" BlurRadius="20"/>
+                                    </Border.Effect>
+                                    <ScrollViewer>
+                                        <StackPanel Margin="4">
+                                            <ItemsPresenter/>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="{DynamicResource BackgroundSecondary}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryLight}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="Padding" Value="12,14"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
-        </Style>
-
-        <Style TargetType="DataGridCell">
+        <!-- ===== COMBOBOX ITEM (кастомний) ===== -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="10,4"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border Background="Transparent"
+                        x:Name="itemBorder"
+                        CornerRadius="6"
+                        Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="itemBorder" Property="Background" Value="{DynamicResource CardHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="itemBorder" Property="Background" Value="{DynamicResource AccentColor}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentText}"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <Style TargetType="DataGridRow">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
-                </Trigger>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource SidebarSelected}"/>
-                </Trigger>
-                <DataTrigger Binding="{Binding Level}" Value="Safe">
-                    <Setter Property="Background" Value="#183A2B"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding Level}" Value="Suspicious">
-                    <Setter Property="Background" Value="#40351B"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding Level}" Value="Dangerous">
-                    <Setter Property="Background" Value="#401F25"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-    </Window.Resources>
+        <!-- ===== CHECKBOX ===== -->
+		<Style x:Key="ModernCheckBoxStyle" TargetType="CheckBox">
+			<Setter Property="Foreground" Value="{DynamicResource TextSecondaryLight}"/>
+			<Setter Property="FontSize" Value="13"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Margin" Value="0,0,0,11"/>
+		</Style>
 
-    <!-- Зовнішня рамка та заголовок у стилі MediaVault -->
-    <Border Background="{DynamicResource BackgroundPrimary}"
+		<!-- ===== DATAGRID ===== -->
+		<Style TargetType="DataGridColumnHeader">
+			<Setter Property="Background" Value="{DynamicResource BackgroundSecondary}"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextSecondaryLight}"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="FontSize" Value="11"/>
+			<Setter Property="Padding" Value="12,14"/>
+			<Setter Property="BorderThickness" Value="0,0,0,1"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+		</Style>
+
+		<Style TargetType="DataGridCell">
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="10,4"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+		</Style>
+
+		<Style TargetType="DataGridRow">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+			<Setter Property="BorderThickness" Value="0,0,0,1"/>
+			<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property="Background" Value="{DynamicResource CardHover}"/>
+				</Trigger>
+				<Trigger Property="IsSelected" Value="True">
+					<Setter Property="Background" Value="{DynamicResource SidebarSelected}"/>
+				</Trigger>
+				<DataTrigger Binding="{Binding Level}" Value="Safe">
+					<Setter Property="Background" Value="{DynamicResource StatusSafeBackground}"/>
+				</DataTrigger>
+				<DataTrigger Binding="{Binding Level}" Value="Suspicious">
+					<Setter Property="Background" Value="{DynamicResource StatusSuspiciousBackground}"/>
+				</DataTrigger>
+				<DataTrigger Binding="{Binding Level}" Value="Dangerous">
+					<Setter Property="Background" Value="{DynamicResource StatusDangerousBackground}"/>
+				</DataTrigger>
+			</Style.Triggers>
+		</Style>
+	</Window.Resources>
+
+	<!-- ЗОВНІШНЯ РАМКА -->
+	<Border Background="{DynamicResource BackgroundPrimary}"
             BorderBrush="{DynamicResource BorderColor}"
             BorderThickness="1"
-            CornerRadius="16"
+            CornerRadius="0"
             Margin="8">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="52"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+		<Border.Effect>
+			<DropShadowEffect Color="#000000" Opacity="0.5" ShadowDepth="0" BlurRadius="40"/>
+		</Border.Effect>
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="52"/>
+				<RowDefinition Height="*"/>
+			</Grid.RowDefinitions>
 
-            <Border Grid.Row="0"
+			<!-- ЗАГОЛОВОК ВІКНА -->
+			<Border Grid.Row="0"
                     Background="{DynamicResource SidebarBackground}"
-                    CornerRadius="16,16,0,0">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                    BorderBrush="{DynamicResource BorderColor}"
+                    BorderThickness="0,0,0,1">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="Auto"/>
+					</Grid.ColumnDefinitions>
 
-                    <StackPanel Orientation="Horizontal" Margin="20,0" VerticalAlignment="Center">
-                        <Border Width="32" Height="32"
+					<StackPanel Orientation="Horizontal" Margin="20,0" VerticalAlignment="Center">
+						<Border Width="30" Height="30"
                                 Background="{DynamicResource AccentColor}"
-                                CornerRadius="8" Margin="0,0,11,0">
-                            <TextBlock Text="⚡" FontSize="18"
+                                CornerRadius="6" Margin="0,0,11,0">
+							<TextBlock Text="🛡" FontSize="16"
+                                       Foreground="{DynamicResource AccentText}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
-                        </Border>
-                        <TextBlock Text="MediaVault"
-                                   FontSize="18" FontWeight="Bold"
+						</Border>
+						<TextBlock Text="MediaVault"
+                                   FontSize="15" FontWeight="Bold"
                                    Foreground="{DynamicResource TextPrimaryDark}"
                                    VerticalAlignment="Center"/>
-                        <Border Background="#263B35" CornerRadius="10"
+						<Border Background="{DynamicResource BadgeSuccessBackground}"
+                                CornerRadius="10"
                                 Padding="9,4" Margin="12,0,0,0">
-                            <TextBlock Text="SECURITY CENTER"
-                                       Foreground="#8BD5B0"
+							<TextBlock Text="SECURITY CENTER"
+                                       Foreground="{DynamicResource BadgeSuccessForeground}"
                                        FontSize="9" FontWeight="Bold"/>
-                        </Border>
-                    </StackPanel>
+						</Border>
+					</StackPanel>
 
-                    <Button Grid.Column="1"
+					<Button Grid.Column="1"
                             Content="✕"
                             Style="{StaticResource CloseButtonStyle}"
                             Click="Close_Click"
                             Margin="0,0,12,0"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
-                </Grid>
-            </Border>
+				</Grid>
+			</Border>
 
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="278"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+			<Grid Grid.Row="1">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="278"/>
+					<ColumnDefinition Width="*"/>
+				</Grid.ColumnDefinitions>
 
-                <!-- Ліва панель керування -->
-                <Border Grid.Column="0"
+				<!-- ЛІВА ПАНЕЛЬ КЕРУВАННЯ -->
+				<Border Grid.Column="0"
                         Background="{DynamicResource SidebarBackground}"
-                        CornerRadius="0,0,0,16"
                         BorderBrush="{DynamicResource BorderColor}"
                         BorderThickness="0,0,1,0">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+					<ScrollViewer VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled">
-                        <StackPanel Margin="20,22,20,20">
-                            <TextBlock Text="ЦЕНТР КЕРУВАННЯ" Style="{StaticResource SectionLabelStyle}"/>
+						<StackPanel Margin="20,22,20,20">
+							<TextBlock Text="ЦЕНТР КЕРУВАННЯ" Style="{StaticResource SectionLabelStyle}"/>
 
-                            <Button Style="{StaticResource PrimaryButtonStyle}"
+							<Button Style="{StaticResource PrimaryButtonStyle}"
                                     Content="📁  Обрати папку"
                                     HorizontalContentAlignment="Center"
                                     Command="{Binding ScanFolderCommand}"
                                     IsEnabled="{Binding IsScanning, Converter={StaticResource InvertBoolConverter}}"
                                     Margin="0,0,0,9"/>
 
-                            <Button Style="{StaticResource SecondaryButtonStyle}"
+							<Button Style="{StaticResource SecondaryButtonStyle}"
                                     Content="▦  Сканувати всю колекцію"
                                     Command="{Binding ScanCollectionCommand}"
                                     IsEnabled="{Binding IsScanning, Converter={StaticResource InvertBoolConverter}}"
                                     Margin="0,0,0,9"/>
 
-                            <Button Style="{StaticResource SecondaryButtonStyle}"
+							<Button Style="{StaticResource SecondaryButtonStyle}"
                                     Content="Очистити результати"
                                     Command="{Binding ClearResultsCommand}"
                                     Margin="0,0,0,22"/>
 
-                            <TextBlock Text="ПОТОЧНЕ СКАНУВАННЯ" Style="{StaticResource SectionLabelStyle}"/>
+							<TextBlock Text="ПОТОЧНЕ СКАНУВАННЯ" Style="{StaticResource SectionLabelStyle}"/>
 
-                            <Border Style="{StaticResource PanelCardStyle}" Margin="0,0,0,22">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,9">
-                                        <Border Width="8" Height="8" CornerRadius="4"
-                                                Background="#42C98A" Margin="0,0,8,0"
+							<Border Style="{StaticResource PanelCardStyle}" Margin="0,0,0,22">
+								<StackPanel>
+									<StackPanel Orientation="Horizontal" Margin="0,0,0,9">
+										<Border Width="8" Height="8" CornerRadius="4"
+                                                Background="{DynamicResource StatusSafeForeground}"
+                                                Margin="0,0,8,0"
                                                 VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding StatusText}"
+										<TextBlock Text="{Binding StatusText}"
                                                    Foreground="{DynamicResource TextPrimaryLight}"
                                                    FontSize="13" FontWeight="SemiBold"
                                                    TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                    <ProgressBar Height="8"
+									</StackPanel>
+									<ProgressBar Height="8"
                                                  Value="{Binding CurrentProgress}"
                                                  Maximum="100"
                                                  Background="{DynamicResource InputBackground}"
                                                  Foreground="{DynamicResource AccentColor}"
                                                  BorderThickness="0"
                                                  Margin="0,2,0,10"/>
-                                    <TextBlock Text="{Binding CurrentFileStatus}"
+									<TextBlock Text="{Binding CurrentFileStatus}"
                                                Foreground="{DynamicResource TextMutedDark}"
                                                FontSize="11" TextWrapping="Wrap"
                                                Margin="0,0,0,8"/>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="Оброблено файлів"
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="*"/>
+											<ColumnDefinition Width="Auto"/>
+										</Grid.ColumnDefinitions>
+										<TextBlock Text="Оброблено файлів"
                                                    Foreground="{DynamicResource TextMutedDark}"
                                                    FontSize="11"/>
-                                        <TextBlock Grid.Column="1" FontSize="11"
+										<TextBlock Grid.Column="1" FontSize="11"
                                                    FontWeight="SemiBold"
                                                    Foreground="{DynamicResource TextPrimaryLight}">
-                                            <TextBlock.Text>
-                                                <MultiBinding StringFormat="{}{0} / {1}">
-                                                    <Binding Path="ScannedFiles"/>
-                                                    <Binding Path="TotalFiles"/>
-                                                </MultiBinding>
-                                            </TextBlock.Text>
-                                        </TextBlock>
-                                    </Grid>
-                                </StackPanel>
-                            </Border>
+											<TextBlock.Text>
+												<MultiBinding StringFormat="{}{0} / {1}">
+													<Binding Path="ScannedFiles"/>
+													<Binding Path="TotalFiles"/>
+												</MultiBinding>
+											</TextBlock.Text>
+										</TextBlock>
+									</Grid>
+								</StackPanel>
+							</Border>
 
-                            <TextBlock Text="ФІЛЬТРАЦІЯ РЕЗУЛЬТАТІВ" Style="{StaticResource SectionLabelStyle}"/>
-                            <Border Style="{StaticResource PanelCardStyle}" Margin="0,0,0,20">
-                                <StackPanel>
-                                    <CheckBox Style="{StaticResource ModernCheckBoxStyle}"
-                                              Content="🟢  Безпечні файли"
+							<TextBlock Text="ФІЛЬТРАЦІЯ РЕЗУЛЬТАТІВ" Style="{StaticResource SectionLabelStyle}"/>
+							<Border Style="{StaticResource PanelCardStyle}" Margin="0,0,0,20">
+								<StackPanel>
+									<CheckBox Style="{StaticResource ModernCheckBoxStyle}"
+                                              Content=" Безпечні файли"
                                               IsChecked="{Binding ShowSafeFiles}"/>
-                                    <CheckBox Style="{StaticResource ModernCheckBoxStyle}"
-                                              Content="🟡  Підозрілі файли"
+									<CheckBox Style="{StaticResource ModernCheckBoxStyle}"
+                                              Content=" Підозрілі файли"
                                               IsChecked="{Binding ShowSuspiciousFiles}"/>
-                                    <CheckBox Style="{StaticResource ModernCheckBoxStyle}"
-                                              Content="🔴  Небезпечні файли"
+									<CheckBox Style="{StaticResource ModernCheckBoxStyle}"
+                                              Content=" Небезпечні файли"
                                               IsChecked="{Binding ShowDangerousFiles}"/>
-                                    <CheckBox Style="{StaticResource ModernCheckBoxStyle}"
-                                              Content="⚪  Невідомі файли"
+									<CheckBox Style="{StaticResource ModernCheckBoxStyle}"
+                                              Content=" Невідомі файли"
                                               IsChecked="{Binding ShowUnknownFiles}"
                                               Margin="0"/>
-                                </StackPanel>
-                            </Border>
+								</StackPanel>
+							</Border>
 
-                            <TextBlock Text="СОРТУВАННЯ" Style="{StaticResource SectionLabelStyle}"/>
-                            <ComboBox SelectedValuePath="Tag"
+							<TextBlock Text="СОРТУВАННЯ" Style="{StaticResource SectionLabelStyle}"/>
+							<ComboBox SelectedValuePath="Tag"
                                       SelectedValue="{Binding SelectedSortBy, Mode=TwoWay}"
                                       Margin="0,0,0,20">
-                                <ComboBoxItem Content="Назва файлу" Tag="FileName"/>
-                                <ComboBoxItem Content="Розмір" Tag="FileSize"/>
-                                <ComboBoxItem Content="Рівень загрози" Tag="ThreatLevel"/>
-                                <ComboBoxItem Content="Час сканування" Tag="ScannedTime"/>
-                            </ComboBox>
+								<ComboBoxItem Content="Назва файлу" Tag="FileName"/>
+								<ComboBoxItem Content="Розмір" Tag="FileSize"/>
+								<ComboBoxItem Content="Рівень загрози" Tag="ThreatLevel"/>
+								<ComboBoxItem Content="Час сканування" Tag="ScannedTime"/>
+							</ComboBox>
 
-                            <TextBlock Text="ДОДАТКОВІ ДІЇ" Style="{StaticResource SectionLabelStyle}"/>
-                            <Button Style="{StaticResource SecondaryButtonStyle}"
+							<TextBlock Text="ДОДАТКОВІ ДІЇ" Style="{StaticResource SectionLabelStyle}"/>
+							<Button Style="{StaticResource SecondaryButtonStyle}"
                                     Content="📊  Експортувати звіт"
                                     Command="{Binding ExportReportCommand}"
                                     Margin="0,0,0,8"/>
-                            <Button Style="{StaticResource SecondaryButtonStyle}"
+							<Button Style="{StaticResource SecondaryButtonStyle}"
                                     Content="Ⅱ  Пауза"
                                     Command="{Binding PauseScanCommand}"
                                     IsEnabled="{Binding IsScanning}"
                                     Margin="0,0,0,8"/>
-                            <Button Style="{StaticResource SecondaryButtonStyle}"
+							<Button Style="{StaticResource SecondaryButtonStyle}"
                                     Content="▶  Поновити"
                                     Command="{Binding ResumeScanCommand}"
                                     IsEnabled="{Binding CanResume}"
                                     Margin="0,0,0,8"/>
-                            <Button Style="{StaticResource SecondaryButtonStyle}"
+							<Button Style="{StaticResource SecondaryButtonStyle}"
                                     Content="✕  Скасувати сканування"
                                     Command="{Binding CancelScanCommand}"
                                     IsEnabled="{Binding IsScanning}"/>
-                        </StackPanel>
-                    </ScrollViewer>
-                </Border>
+						</StackPanel>
+					</ScrollViewer>
+				</Border>
 
-                <!-- Основна область -->
-                <Grid Grid.Column="1" Background="{DynamicResource BackgroundPrimary}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+				<!-- ОСНОВНА ОБЛАСТЬ -->
+				<Grid Grid.Column="1" Background="{DynamicResource BackgroundPrimary}">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="*"/>
+						<RowDefinition Height="Auto"/>
+					</Grid.RowDefinitions>
 
-                    <StackPanel Grid.Row="0" Margin="26,24,26,18">
-                        <TextBlock Text="БЕЗПЕКА КОЛЕКЦІЇ"
+					<StackPanel Grid.Row="0" Margin="26,24,26,18">
+						<TextBlock Text="БЕЗПЕКА КОЛЕКЦІЇ"
                                    Foreground="{DynamicResource TextMutedDark}"
                                    FontSize="10" FontWeight="Bold"
                                    Margin="0,0,0,7"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="Сканер безпеки"
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="Auto"/>
+							</Grid.ColumnDefinitions>
+							<StackPanel>
+								<TextBlock Text="Сканер безпеки"
                                            Foreground="{DynamicResource TextPrimaryLight}"
                                            FontSize="26" FontWeight="Bold"/>
-                                <TextBlock Text="Перевіряйте файли та переглядайте виявлені загрози в одному місці."
+								<TextBlock Text="Перевіряйте файли та переглядайте виявлені загрози в одному місці."
                                            Foreground="{DynamicResource TextSecondaryLight}"
                                            FontSize="13" Margin="0,6,0,0"
                                            TextWrapping="Wrap"/>
-                            </StackPanel>
-                            <Border Grid.Column="1"
+							</StackPanel>
+							<Border Grid.Column="1"
                                     Background="{DynamicResource BackgroundCard}"
-                                    BorderBrush="{DynamicResource CardBorder}"
+                                    BorderBrush="{DynamicResource BorderColor}"
                                     BorderThickness="1"
-                                    CornerRadius="12"
+                                    CornerRadius="10"
                                     Padding="14,10"
                                     VerticalAlignment="Center">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🛡"
+								<StackPanel Orientation="Horizontal">
+									<TextBlock Text="🛡"
                                                FontSize="19"
                                                Margin="0,0,9,0"
                                                VerticalAlignment="Center"/>
-                                    <StackPanel>
-                                        <TextBlock Text="РЕЗУЛЬТАТИ"
+									<StackPanel>
+										<TextBlock Text="РЕЗУЛЬТАТИ"
                                                    FontSize="9" FontWeight="Bold"
                                                    Foreground="{DynamicResource TextMutedDark}"/>
-                                        <TextBlock Text="{Binding FilteredResults.Count, StringFormat={}{0} файлів}"
+										<TextBlock Text="{Binding FilteredResults.Count, StringFormat={}{0} файлів}"
                                                    FontSize="14" FontWeight="Bold"
                                                    Foreground="{DynamicResource TextPrimaryLight}"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-                    </StackPanel>
+									</StackPanel>
+								</StackPanel>
+							</Border>
+						</Grid>
+					</StackPanel>
 
-                    <!-- Інформаційні картки -->
-                    <Grid Grid.Row="1" Margin="26,0,26,18">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+					<!-- ІНФО КАРТКИ -->
+					<Grid Grid.Row="1" Margin="26,0,26,18">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="*"/>
+						</Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0" Style="{StaticResource PanelCardStyle}" Margin="0,0,10,0">
-                            <StackPanel>
-                                <TextBlock Text="ЗНАЙДЕНО РЕЗУЛЬТАТІВ"
+						<Border Grid.Column="0" Style="{StaticResource PanelCardStyle}" Margin="0,0,10,0">
+							<StackPanel>
+								<TextBlock Text="ЗНАЙДЕНО РЕЗУЛЬТАТІВ"
                                            Foreground="{DynamicResource TextMutedDark}"
                                            FontSize="9" FontWeight="Bold"/>
-                                <TextBlock Text="{Binding FilteredResults.Count}"
+								<TextBlock Text="{Binding FilteredResults.Count}"
                                            Foreground="{DynamicResource TextPrimaryLight}"
                                            FontSize="24" FontWeight="Bold" Margin="0,5,0,0"/>
-                                <TextBlock Text="За поточними фільтрами"
+								<TextBlock Text="За поточними фільтрами"
                                            Foreground="{DynamicResource TextMutedDark}"
                                            FontSize="10"/>
-                            </StackPanel>
-                        </Border>
+							</StackPanel>
+						</Border>
 
-                        <Border Grid.Column="1" Style="{StaticResource PanelCardStyle}" Margin="5,0">
-                            <StackPanel>
-                                <TextBlock Text="ОПРАЦЬОВАНО"
+						<Border Grid.Column="1" Style="{StaticResource PanelCardStyle}" Margin="5,0">
+							<StackPanel>
+								<TextBlock Text="ОПРАЦЬОВАНО"
                                            Foreground="{DynamicResource TextMutedDark}"
                                            FontSize="9" FontWeight="Bold"/>
-                                <TextBlock Text="{Binding ScannedFiles}"
+								<TextBlock Text="{Binding ScannedFiles}"
                                            Foreground="{DynamicResource TextPrimaryLight}"
                                            FontSize="24" FontWeight="Bold" Margin="0,5,0,0"/>
-                                <TextBlock Text="Файлів проскановано"
+								<TextBlock Text="Файлів проскановано"
                                            Foreground="{DynamicResource TextMutedDark}"
                                            FontSize="10"/>
-                            </StackPanel>
-                        </Border>
+							</StackPanel>
+						</Border>
 
-                        <Border Grid.Column="2" Style="{StaticResource PanelCardStyle}" Margin="10,0,0,0">
-                            <StackPanel>
-                                <TextBlock Text="ЗАГАЛЬНИЙ ПРОГРЕС"
+						<Border Grid.Column="2" Style="{StaticResource PanelCardStyle}" Margin="10,0,0,0">
+							<StackPanel>
+								<TextBlock Text="ЗАГАЛЬНИЙ ПРОГРЕС"
                                            Foreground="{DynamicResource TextMutedDark}"
                                            FontSize="9" FontWeight="Bold"/>
-                                <TextBlock Text="{Binding CurrentProgress, StringFormat={}{0:F0}%}"
+								<TextBlock Text="{Binding CurrentProgress, StringFormat={}{0:F0}%}"
                                            Foreground="{DynamicResource TextPrimaryLight}"
                                            FontSize="24" FontWeight="Bold" Margin="0,5,0,0"/>
-                                <TextBlock Text="Виконання перевірки"
+								<TextBlock Text="Виконання перевірки"
                                            Foreground="{DynamicResource TextMutedDark}"
                                            FontSize="10"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
+							</StackPanel>
+						</Border>
+					</Grid>
 
-                    <!-- Таблиця результатів -->
-                    <Border Grid.Row="2"
+					<!-- ТАБЛИЦЯ РЕЗУЛЬТАТІВ -->
+					<Border Grid.Row="2"
                             Background="{DynamicResource BackgroundSecondary}"
                             BorderBrush="{DynamicResource BorderColor}"
                             BorderThickness="1"
-                            CornerRadius="14"
+                            CornerRadius="10"
                             Margin="26,0,26,18"
                             Padding="0"
                             ClipToBounds="True">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="*"/>
+							</Grid.RowDefinitions>
 
-                            <Border Grid.Row="0"
+							<Border Grid.Row="0"
                                     Background="{DynamicResource BackgroundCard}"
                                     BorderBrush="{DynamicResource BorderColor}"
                                     BorderThickness="0,0,0,1"
                                     Padding="18,14">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel>
-                                        <TextBlock Text="Результати перевірки"
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*"/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<StackPanel>
+										<TextBlock Text="Результати перевірки"
                                                    Foreground="{DynamicResource TextPrimaryLight}"
                                                    FontSize="15" FontWeight="Bold"/>
-                                        <TextBlock Text="Оберіть файл, щоб переглянути його деталі"
+										<TextBlock Text="Оберіть файл, щоб переглянути його деталі"
                                                    Foreground="{DynamicResource TextMutedDark}"
                                                    FontSize="11" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                    <Border Grid.Column="1"
+									</StackPanel>
+									<Border Grid.Column="1"
                                             Background="{DynamicResource InputBackground}"
                                             CornerRadius="8"
                                             Padding="10,6"
                                             VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding FilteredResults.Count, StringFormat={}{0} записів}"
+										<TextBlock Text="{Binding FilteredResults.Count, StringFormat={}{0} записів}"
                                                    Foreground="{DynamicResource TextSecondaryLight}"
                                                    FontSize="11" FontWeight="SemiBold"/>
-                                    </Border>
-                                </Grid>
-                            </Border>
+									</Border>
+								</Grid>
+							</Border>
 
-                            <DataGrid Grid.Row="1"
+							<DataGrid Grid.Row="1"
                                       x:Name="ScanResultsGrid"
                                       ItemsSource="{Binding FilteredResults}"
                                       AutoGenerateColumns="False"
@@ -548,54 +665,53 @@
                                       Margin="8"
                                       EnableRowVirtualization="True"
                                       VirtualizingPanel.VirtualizationMode="Recycling">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="ФАЙЛ" Binding="{Binding FileName}" Width="2.2*"/>
-                                    <DataGridTextColumn Header="РОЗМІР" Binding="{Binding FormattedSize}" Width="90"/>
-                                    <DataGridTextColumn Header="СТАТУС" Binding="{Binding StatusBadge}" Width="115"/>
-                                    <DataGridTextColumn Header="ДЖЕРЕЛО" Binding="{Binding ScannerName}" Width="120"/>
-                                    <DataGridTextColumn Header="ЗАГРОЗА" Binding="{Binding ThreatName}" Width="130"/>
-                                    <DataGridTextColumn Header="ДЕТЕКЦІЇ" Binding="{Binding DetectionRatio}" Width="85"/>
-                                    <DataGridTextColumn Header="SHA-256"
+								<DataGrid.Columns>
+									<DataGridTextColumn Header="ФАЙЛ" Binding="{Binding FileName}" Width="2.2*"/>
+									<DataGridTextColumn Header="РОЗМІР" Binding="{Binding FormattedSize}" Width="90"/>
+									<DataGridTextColumn Header="СТАТУС" Binding="{Binding StatusBadge}" Width="115"/>
+									<DataGridTextColumn Header="ДЖЕРЕЛО" Binding="{Binding ScannerName}" Width="120"/>
+									<DataGridTextColumn Header="ЗАГРОЗА" Binding="{Binding ThreatName}" Width="130"/>
+									<DataGridTextColumn Header="ДЕТЕКЦІЇ" Binding="{Binding DetectionRatio}" Width="85"/>
+									<DataGridTextColumn Header="SHA-256"
                                                         Binding="{Binding Sha256Hash, Converter={StaticResource ShortenHashConverter}}"
                                                         Width="105"
                                                         ToolTipService.ToolTip="{Binding Sha256Hash}"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Grid>
-                    </Border>
+								</DataGrid.Columns>
+							</DataGrid>
+						</Grid>
+					</Border>
 
-                    <!-- Нижня панель дій -->
-                    <Border Grid.Row="3"
+					<!-- НИЖНЯ ПАНЕЛЬ ДІЙ -->
+					<Border Grid.Row="3"
                             Background="{DynamicResource SidebarBackground}"
                             BorderBrush="{DynamicResource BorderColor}"
                             BorderThickness="0,1,0,0"
-                            Padding="26,14"
-                            CornerRadius="0,0,16,0">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Style="{StaticResource PrimaryButtonStyle}"
+                            Padding="26,14">
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="Auto"/>
+							</Grid.ColumnDefinitions>
+							<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+								<Button Style="{StaticResource PrimaryButtonStyle}"
                                         Content="📂  Показати в каталозі"
                                         Command="{Binding OpenInExplorerCommand}"
                                         CommandParameter="{Binding SelectedItem, ElementName=ScanResultsGrid}"
                                         Margin="0,0,9,0"/>
-                                <Button Style="{StaticResource SecondaryButtonStyle}"
+								<Button Style="{StaticResource SecondaryButtonStyle}"
                                         Content="🔎  Переглянути файл"
                                         Command="{Binding OpenDetailsCommand}"
                                         CommandParameter="{Binding SelectedItem, ElementName=ScanResultsGrid}"/>
-                            </StackPanel>
-                            <Button Grid.Column="1"
+							</StackPanel>
+							<Button Grid.Column="1"
                                     Style="{StaticResource SecondaryButtonStyle}"
                                     Content="Закрити"
                                     Click="Close_Click"
                                     MinWidth="100"/>
-                        </Grid>
-                    </Border>
-                </Grid>
-            </Grid>
-        </Grid>
-    </Border>
+						</Grid>
+					</Border>
+				</Grid>
+			</Grid>
+		</Grid>
+	</Border>
 </Window>

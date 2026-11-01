@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -138,6 +139,13 @@ namespace MediaVault.ViewModels
             }
         }
 
+        public class HashedFile
+        {
+            public string FilePath { get; set; }
+            public string Sha256 { get; set; }
+            public FileInfo Info { get; set; }
+        }
+
         private bool _showSuspiciousFiles = true;
         public bool ShowSuspiciousFiles
         {
@@ -216,6 +224,11 @@ namespace MediaVault.ViewModels
                 if (param is SecurityItem item)
                     OpenInExplorer(item);
             });
+
+            // ===== ДІАГНОСТИКА VT ПРИ СТВОРЕННІ =====
+            System.Diagnostics.Debug.WriteLine(
+                $"[SecurityScanner] VT HasApiKey={_virusTotalService.HasApiKey}, " +
+                $"CachedResults={_virusTotalService.GetCachedResultsCount()}");
         }
 
         private void RefreshSummary()
@@ -251,14 +264,13 @@ namespace MediaVault.ViewModels
                 return;
 
             var files = EnumerateFilesRecursively(dialog.SelectedPath);
-
             await PerformScanAsync(files);
         }
 
-        private static System.Collections.Generic.List<string> EnumerateFilesRecursively(string rootPath)
+        private static List<string> EnumerateFilesRecursively(string rootPath)
         {
-            var files = new System.Collections.Generic.List<string>();
-            var pendingDirectories = new System.Collections.Generic.Stack<string>();
+            var files = new List<string>();
+            var pendingDirectories = new Stack<string>();
             pendingDirectories.Push(rootPath);
 
             while (pendingDirectories.Count > 0)
@@ -284,7 +296,6 @@ namespace MediaVault.ViewModels
                     {
                         try
                         {
-                            // Avoid junction/symlink loops while traversing the directory tree.
                             if ((File.GetAttributes(subdirectory) & FileAttributes.ReparsePoint) == 0)
                                 pendingDirectories.Push(subdirectory);
                         }
@@ -315,203 +326,14 @@ namespace MediaVault.ViewModels
         private async Task ScanCollectionAsync(ObservableCollection<MediaItem> mediaItems)
         {
             var files = mediaItems
-                .Where(m => System.IO.File.Exists(m.FilePath))
+                .Where(m => File.Exists(m.FilePath))
                 .Select(m => m.FilePath)
                 .ToList();
 
             await PerformScanAsync(files);
         }
 
-        private async Task PerformScanAsync(System.Collections.Generic.List<string> files)
-        {
-            if (files.Count == 0)
-            {
-                MessageBox.Show("Немає файлів для сканування.", "Інформація", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-
-            IsScanning = true;
-            IsPaused = false;
-            _pauseCompletionSource = null;
-            _cancellationTokenSource = new CancellationTokenSource();
-            TotalFiles = files.Count;
-            ScannedFiles = 0;
-            ScanResults.Clear();
-            FilteredResults.Clear();
-
-            try
-            {
-                StatusText = $"Сканування {files.Count} файлів...";
-
-                foreach (var filePath in files)
-                {
-                    await WaitIfPausedAsync(_cancellationTokenSource.Token);
-                    _cancellationTokenSource.Token.ThrowIfCancellationRequested();
-
-                    try
-                    {
-                        if (!System.IO.File.Exists(filePath))
-                            continue;
-
-                        if (!CanReadFile(filePath))
-                        {
-                            System.Diagnostics.Debug.WriteLine($"Skipped inaccessible file: {filePath}");
-                            var unavailableFileInfo = new FileInfo(filePath);
-                            ScanResults.Add(new SecurityItem
-                            {
-                                FilePath = filePath,
-                                FileName = unavailableFileInfo.Name,
-                                FileExtension = unavailableFileInfo.Extension,
-                                FileSize = unavailableFileInfo.Exists ? unavailableFileInfo.Length : 0,
-                                Level = SecurityLevel.Unknown,
-                                ScannedAt = DateTime.Now,
-                                ScanDetails = "Файл недоступний для читання. Перевірте, що OneDrive запущено та файл збережено локально."
-                            });
-                            ApplyFilter();
-                            ScannedFiles++;
-                            StatusText = $"Пропущено недоступний файл: {unavailableFileInfo.Name}";
-                            continue;
-                        }
-
-                        var fileInfo = new FileInfo(filePath);
-                        CurrentFileProgress = 0;
-                        IsCurrentFileProgressIndeterminate = false;
-                        CurrentFileStatus = $"Хешування {fileInfo.Name} (0%)";
-
-                        var lastReportedPercent = -1;
-                        var hashProgress = new Progress<long>(bytesRead =>
-                        {
-                            var percent = fileInfo.Length > 0
-                                ? Math.Min(100, (int)(bytesRead * 100.0 / fileInfo.Length))
-                                : 100;
-
-                            if (percent != lastReportedPercent)
-                            {
-                                lastReportedPercent = percent;
-                                CurrentFileProgress = percent;
-                                CurrentFileStatus = $"Хешування {fileInfo.Name} ({percent}%)";
-                            }
-                        });
-
-                        var sha256 = await FileHashService.ComputeSha256Async(
-                            filePath,
-                            _cancellationTokenSource.Token,
-                            hashProgress);
-
-                        _cancellationTokenSource.Token.ThrowIfCancellationRequested();
-
-                        VirusScanResult scanResult;
-                        if (_virusTotalService.HasApiKey)
-                        {
-                            IsCurrentFileProgressIndeterminate = true;
-                            CurrentFileStatus = $"Перевірка VirusTotal: {fileInfo.Name}";
-                            scanResult = await _virusTotalService.ScanFileHashAsync(
-                                filePath,
-                                sha256,
-                                _cancellationTokenSource.Token);
-
-                            if (scanResult.ShouldUseWindowsDefender)
-                            {
-                                var fallbackReason = scanResult.IsRateLimited
-                                    ? "Ліміт VirusTotal вичерпано"
-                                    : "VirusTotal не надав результат";
-                                StatusText = $"{fallbackReason}; запускається Windows Defender.";
-                                CurrentFileStatus = $"Перевірка Windows Defender: {fileInfo.Name}";
-
-                                var virusTotalError = scanResult.Error;
-                                scanResult = await _windowsDefenderService.ScanFileAsync(
-                                    filePath,
-                                    sha256,
-                                    _cancellationTokenSource.Token);
-                                scanResult.ScannerName = "Windows Defender (fallback)";
-                                if (!string.IsNullOrWhiteSpace(virusTotalError))
-                                {
-                                    scanResult.Error = $"{virusTotalError}; локально перевірено Windows Defender.";
-                                }
-                            }
-                        }
-                        else
-                        {
-                            IsCurrentFileProgressIndeterminate = true;
-                            CurrentFileStatus = $"Перевірка Windows Defender: {fileInfo.Name}";
-                            scanResult = await _windowsDefenderService.ScanFileAsync(
-                                filePath,
-                                sha256,
-                                _cancellationTokenSource.Token);
-                            scanResult.ScannerName = "Windows Defender";
-                        }
-
-                        var item = new SecurityItem
-                        {
-                            FilePath = filePath,
-                            FileName = fileInfo.Name,
-                            FileExtension = fileInfo.Extension,
-                            FileSize = fileInfo.Length,
-                            Sha256Hash = sha256,
-                            Level = scanResult.Status,
-                            ThreatName = scanResult.ThreatName,
-                            ThreatDetails = scanResult.ThreatDetails,
-                            MaliciousCount = scanResult.MaliciousCount,
-                            SuspiciousCount = scanResult.SuspiciousCount,
-                            TotalEngines = scanResult.TotalEngines,
-                            ScannedAt = DateTime.Now,
-                            ScanDetails = scanResult.Error,
-                            ScannerName = scanResult.ScannerName
-                        };
-
-                        ScanResults.Add(item);
-                        ApplyFilter();
-
-                        ScannedFiles++;
-                        CurrentFileProgress = 100;
-                        IsCurrentFileProgressIndeterminate = false;
-                        CurrentFileStatus = $"Завершено: {fileInfo.Name}";
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        throw;
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Error scanning file {filePath}: {ex.Message}");
-                        var failedFileInfo = new FileInfo(filePath);
-                        ScanResults.Add(new SecurityItem
-                        {
-                            FilePath = filePath,
-                            FileName = failedFileInfo.Name,
-                            FileExtension = failedFileInfo.Extension,
-                            FileSize = failedFileInfo.Exists ? failedFileInfo.Length : 0,
-                            Level = SecurityLevel.Unknown,
-                            ScannedAt = DateTime.Now,
-                            ScanDetails = ex.Message
-                        });
-                        ApplyFilter();
-                        ScannedFiles++;
-                        CurrentFileProgress = 0;
-                        IsCurrentFileProgressIndeterminate = false;
-                        CurrentFileStatus = $"Пропущено: {failedFileInfo.Name} — {ex.Message}";
-                    }
-
-                    _cancellationTokenSource.Token.ThrowIfCancellationRequested();
-                }
-
-                StatusText = $"Сканування завершено. Перевірено {ScannedFiles} файлів.";
-            }
-            catch (OperationCanceledException)
-            {
-                StatusText = $"Сканування зупинено. Перевірено {ScannedFiles} з {TotalFiles} файлів.";
-            }
-            finally
-            {
-                IsPaused = false;
-                IsScanning = false;
-                _pauseCompletionSource?.TrySetResult(true);
-                _pauseCompletionSource = null;
-                _cancellationTokenSource?.Dispose();
-                _cancellationTokenSource = null;
-                ApplyFilter();
-            }
-        }
+        
 
         private async Task WaitIfPausedAsync(CancellationToken cancellationToken)
         {
@@ -570,8 +392,6 @@ namespace MediaVault.ViewModels
                     FileAccess.Read,
                     FileShare.ReadWrite | FileShare.Delete);
 
-                // Opening a OneDrive placeholder can succeed even when its contents
-                // are unavailable. Read to force provider hydration before scanning.
                 if (stream.Length > 0)
                     stream.ReadByte();
 
@@ -612,7 +432,6 @@ namespace MediaVault.ViewModels
                 (ShowUnknownFiles && item.Level == SecurityLevel.Unknown)
             );
 
-            // Apply sorting
             var sorted = SelectedSortBy switch
             {
                 "FileName" => filtered.OrderBy(x => x.FileName),
@@ -627,6 +446,20 @@ namespace MediaVault.ViewModels
                 FilteredResults.Add(item);
             }
         }
+        private void AddToFilteredResults(SecurityItem item)
+        {
+            bool passesFilter =
+                (ShowSafeFiles && item.Level == SecurityLevel.Safe) ||
+                (ShowSuspiciousFiles && item.Level == SecurityLevel.Suspicious) ||
+                (ShowDangerousFiles && item.Level == SecurityLevel.Dangerous) ||
+                (ShowUnknownFiles && item.Level == SecurityLevel.Unknown);
+
+            if (!passesFilter)
+                return;
+
+            FilteredResults.Add(item);
+        }
+
 
         private async Task ExportReportAsync()
         {
@@ -729,7 +562,7 @@ namespace MediaVault.ViewModels
             html.AppendLine("</body>");
             html.AppendLine("</html>");
 
-            System.IO.File.WriteAllText(filePath, html.ToString());
+            File.WriteAllText(filePath, html.ToString());
         }
 
         private static void AppendSummaryCard(System.Text.StringBuilder html, string label, int value, string valueClass)
@@ -781,7 +614,7 @@ namespace MediaVault.ViewModels
                 }));
             }
 
-            System.IO.File.WriteAllText(filePath, csv.ToString());
+            File.WriteAllText(filePath, csv.ToString());
         }
 
         private static string CsvEscape(string value)
@@ -807,5 +640,271 @@ namespace MediaVault.ViewModels
                 MessageBox.Show($"Не вдалося відкрити в каталозі: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        private async Task PerformScanAsync(List<string> files)
+        {
+            if (files.Count == 0)
+            {
+                MessageBox.Show("Немає файлів для сканування.", "Інформація", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            IsScanning = true;
+            IsPaused = false;
+            _pauseCompletionSource = null;
+            _cancellationTokenSource = new CancellationTokenSource();
+            TotalFiles = files.Count;
+            ScannedFiles = 0;
+            ScanResults.Clear();
+            FilteredResults.Clear();
+
+            bool vtAvailable = _virusTotalService.HasApiKey;
+            int vtCached = _virusTotalService.GetCachedResultsCount();
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[SecurityScanner] START: Files={files.Count}, VT available={vtAvailable}, VT cache={vtCached}");
+
+            if (!vtAvailable)
+            {
+                MessageBox.Show(
+                    "API-ключ VirusTotal не знайдено.\n\n" +
+                    "Перевірте файл .env (VIRUSTOTAL_API_KEY) або введіть ключ у Налаштуваннях.\n\n" +
+                    "Зараз буде використано тільки Windows Defender.",
+                    "VirusTotal недоступний",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+
+            try
+            {
+                // ===== ЕТАП 1: ХЕШУВАННЯ =====
+                StatusText = $"Хешування {files.Count} файлів...";
+                var hashedFiles = new List<HashedFile>();
+
+                for (int i = 0; i < files.Count; i++)
+                {
+                    await WaitIfPausedAsync(_cancellationTokenSource.Token);
+                    _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+                    var filePath = files[i];
+                    try
+                    {
+                        if (!File.Exists(filePath) || !CanReadFile(filePath))
+                            continue;
+
+                        var fileInfo = new FileInfo(filePath);
+                        CurrentFileStatus = $"Хешування [{i + 1}/{files.Count}]: {fileInfo.Name}";
+                        StatusText = $"Хешування [{i + 1}/{files.Count}]: {fileInfo.Name}";
+                        IsCurrentFileProgressIndeterminate = true;
+                        CurrentFileProgress = (int)((double)(i + 1) / files.Count * 100);
+
+                        var sha256 = await FileHashService.ComputeSha256Async(
+                            filePath, _cancellationTokenSource.Token, null);
+
+                        hashedFiles.Add(new HashedFile
+                        {
+                            FilePath = filePath,
+                            Sha256 = sha256,
+                            Info = fileInfo
+                        });
+                    }
+                    catch (OperationCanceledException) { throw; }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Hash error {filePath}: {ex.Message}");
+                    }
+                }
+
+                _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+                if (hashedFiles.Count == 0)
+                {
+                    StatusText = "Немає файлів для сканування.";
+                    return;
+                }
+
+                // ===== ЕТАП 2: DEFENDER ПАРАЛЕЛЬНО З ПРОГРЕСОМ =====
+                StatusText = $"Defender: паралельне сканування {hashedFiles.Count} файлів...";
+                IsCurrentFileProgressIndeterminate = true;
+
+                var filePaths = hashedFiles.Select(h => h.FilePath).ToList();
+                var hashedLookup = hashedFiles.ToDictionary(h => h.FilePath, h => h, StringComparer.OrdinalIgnoreCase);
+
+                int defenderCompleted = 0;
+                var defenderProgress = new Progress<VirusScanResult>(result =>
+                {
+                    if (!hashedLookup.TryGetValue(result.FilePath, out var hashedFile))
+                        return;
+
+                    ScanResults.Add(new SecurityItem
+                    {
+                        FilePath = hashedFile.FilePath,
+                        FileName = hashedFile.Info.Name,
+                        FileExtension = hashedFile.Info.Extension,
+                        FileSize = hashedFile.Info.Length,
+                        Sha256Hash = hashedFile.Sha256,
+                        Level = result.Status,
+                        ThreatName = result.ThreatName,
+                        ThreatDetails = result.ThreatDetails,
+                        MaliciousCount = result.MaliciousCount,
+                        SuspiciousCount = result.SuspiciousCount,
+                        TotalEngines = result.TotalEngines,
+                        ScannedAt = DateTime.Now,
+                        ScanDetails = result.Error,
+                        ScannerName = result.ScannerName
+                    });
+
+                    defenderCompleted++;
+                    ScannedFiles = defenderCompleted;
+
+                    StatusText = $"Defender [{defenderCompleted}/{hashedFiles.Count}]: {hashedFile.Info.Name}";
+                    CurrentFileStatus = $"Defender: {hashedFile.Info.Name}";
+
+                    // Швидке додавання в FilteredResults (без повного пересортування)
+                    bool passesFilter =
+                        (ShowSafeFiles && result.Status == SecurityLevel.Safe) ||
+                        (ShowSuspiciousFiles && result.Status == SecurityLevel.Suspicious) ||
+                        (ShowDangerousFiles && result.Status == SecurityLevel.Dangerous) ||
+                        (ShowUnknownFiles && result.Status == SecurityLevel.Unknown);
+
+                    if (passesFilter)
+                        FilteredResults.Add(ScanResults[ScanResults.Count - 1]);
+                });
+
+                var defenderResults = await _windowsDefenderService.ScanFilesBatchAsync(
+                    filePaths, defenderProgress, _cancellationTokenSource.Token);
+
+                _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+                // Перевірка, що всі файли додані
+                if (ScanResults.Count < hashedFiles.Count)
+                {
+                    var alreadyAdded = new HashSet<string>(ScanResults.Select(r => r.FilePath), StringComparer.OrdinalIgnoreCase);
+                    foreach (var hashedFile in hashedFiles)
+                    {
+                        if (alreadyAdded.Contains(hashedFile.FilePath))
+                            continue;
+
+                        if (!defenderResults.TryGetValue(hashedFile.FilePath, out var defenderResult))
+                        {
+                            defenderResult = new VirusScanResult
+                            {
+                                FilePath = hashedFile.FilePath,
+                                FileName = hashedFile.Info.Name,
+                                Status = SecurityLevel.Unknown,
+                                Error = "Defender не повернув результат",
+                                ScannerName = "Windows Defender"
+                            };
+                        }
+
+                        ScanResults.Add(new SecurityItem
+                        {
+                            FilePath = hashedFile.FilePath,
+                            FileName = hashedFile.Info.Name,
+                            FileExtension = hashedFile.Info.Extension,
+                            FileSize = hashedFile.Info.Length,
+                            Sha256Hash = hashedFile.Sha256,
+                            Level = defenderResult.Status,
+                            ThreatName = defenderResult.ThreatName,
+                            ThreatDetails = defenderResult.ThreatDetails,
+                            MaliciousCount = defenderResult.MaliciousCount,
+                            SuspiciousCount = defenderResult.SuspiciousCount,
+                            TotalEngines = defenderResult.TotalEngines,
+                            ScannedAt = DateTime.Now,
+                            ScanDetails = defenderResult.Error,
+                            ScannerName = defenderResult.ScannerName
+                        });
+                        ScannedFiles++;
+                    }
+                }
+
+                // Повне сортування після Defender
+                ApplyFilter();
+
+                // ===== ЕТАП 3: VIRUSTOTAL ДЛЯ SUSPICIOUS/DANGEROUS =====
+                int vtUsedCount = 0;
+
+                if (vtAvailable)
+                {
+                    var suspiciousItems = ScanResults
+                        .Where(r => r.Level == SecurityLevel.Suspicious || r.Level == SecurityLevel.Dangerous)
+                        .ToList();
+
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[SecurityScanner] Files for VT: {suspiciousItems.Count} " +
+                        $"(Dangerous={suspiciousItems.Count(x => x.Level == SecurityLevel.Dangerous)}, " +
+                        $"Suspicious={suspiciousItems.Count(x => x.Level == SecurityLevel.Suspicious)})");
+
+                    if (suspiciousItems.Count > 0)
+                    {
+                        int vtDone = 0;
+                        foreach (var item in suspiciousItems)
+                        {
+                            await WaitIfPausedAsync(_cancellationTokenSource.Token);
+                            _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+                            vtDone++;
+                            StatusText = $"VirusTotal [{vtDone}/{suspiciousItems.Count}]: {item.FileName}";
+                            CurrentFileStatus = $"VT: {item.FileName}";
+                            IsCurrentFileProgressIndeterminate = true;
+
+                            try
+                            {
+                                var vtResult = await _virusTotalService.ScanFileHashAsync(
+                                    item.FilePath, item.Sha256Hash, _cancellationTokenSource.Token);
+
+                                vtUsedCount++;
+
+                                System.Diagnostics.Debug.WriteLine(
+                                    $"[VT] {item.FileName}: Status={vtResult.Status}, " +
+                                    $"Error={vtResult.Error ?? "none"}, " +
+                                    $"ShouldUseDefender={vtResult.ShouldUseWindowsDefender}, " +
+                                    $"RateLimited={vtResult.IsRateLimited}");
+
+                                if (!vtResult.ShouldUseWindowsDefender)
+                                {
+                                    item.Level = vtResult.Status;
+                                    item.ThreatName = vtResult.ThreatName ?? item.ThreatName;
+                                    item.ThreatDetails =
+                                        $"Defender: {item.ThreatDetails} | VT: {vtResult.ThreatDetails}";
+                                    item.MaliciousCount = vtResult.MaliciousCount;
+                                    item.SuspiciousCount = vtResult.SuspiciousCount;
+                                    item.TotalEngines = vtResult.TotalEngines;
+                                    item.ScannerName = "VirusTotal + Defender";
+                                }
+                            }
+                            catch (OperationCanceledException) { throw; }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine(
+                                    $"[VT] Error for {item.FileName}: {ex.Message}");
+                            }
+                        }
+
+                        ApplyFilter();
+                    }
+                }
+
+                StatusText = $"Сканування завершено. {ScannedFiles} файлів " +
+                             $"(Defender: {ScannedFiles}, VT: {vtUsedCount}).";
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"[SecurityScanner] DONE: Defender={ScannedFiles}, VT={vtUsedCount}");
+            }
+            catch (OperationCanceledException)
+            {
+                StatusText = $"Сканування зупинено. Перевірено {ScannedFiles} з {TotalFiles} файлів.";
+            }
+            finally
+            {
+                IsPaused = false;
+                IsScanning = false;
+                _pauseCompletionSource?.TrySetResult(true);
+                _pauseCompletionSource = null;
+                _cancellationTokenSource?.Dispose();
+                _cancellationTokenSource = null;
+                ApplyFilter();
+            }
+        }
+
     }
 }

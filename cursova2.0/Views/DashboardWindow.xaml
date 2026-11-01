@@ -6,9 +6,8 @@
         xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
-        Title="Статистика" 
-        Height="800" 
-        Width="1200"
+        Title="Статистика"
+        Height="800" Width="1200"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResize"
         Background="Transparent"
@@ -16,142 +15,222 @@
         AllowsTransparency="True">
 
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="52" ResizeBorderThickness="12" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
+        <shell:WindowChrome CaptionHeight="52" ResizeBorderThickness="12"
+                            GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
     </shell:WindowChrome.WindowChrome>
 
     <Window.Resources>
-
-        <!-- Стиль кнопки закриття -->
+        <!-- ===== CLOSE BUTTON ===== -->
         <Style x:Key="CloseButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryDark}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
+            <Setter Property="Height" Value="34"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource DangerColor}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF3B30"/>
-                </Trigger>
-            </Style.Triggers>
+        </Style>
+
+        <!-- ===== STAT CARD ===== -->
+        <Style x:Key="StatCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource BackgroundSecondary}"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- ===== CHART CARD ===== -->
+        <Style x:Key="ChartCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource BackgroundSecondary}"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- ===== SECTION TITLE ===== -->
+        <Style x:Key="ChartTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryLight}"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
         </Style>
     </Window.Resources>
 
-    <Border Background="{DynamicResource BackgroundPrimary}" CornerRadius="16" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Margin="8">
+    <Border Background="{DynamicResource BackgroundPrimary}"
+            CornerRadius="0"
+            BorderBrush="{DynamicResource BorderColor}"
+            BorderThickness="1"
+            Margin="8">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" Opacity="0.5" ShadowDepth="0" BlurRadius="40"/>
+        </Border.Effect>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="52"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- ЗАГОЛОВОК ВІКНА -->
-            <Border Grid.Row="0" Background="{DynamicResource SidebarBackground}" CornerRadius="16,16,0,0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <!-- ===== ЗАГОЛОВОК ВІКНА ===== -->
+            <Border Grid.Row="0" Background="{DynamicResource SidebarBackground}"
+                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="20,0">
-                        <TextBlock Text="📊" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock Text="Статистика колекції" FontSize="16" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                        <Border Width="28" Height="28" Background="{DynamicResource AccentColor}"
+                                CornerRadius="6" Margin="0,0,10,0" VerticalAlignment="Center">
+                            <TextBlock Text="📊" FontSize="14"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Статистика колекції" FontSize="15" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryDark}"
+                                   VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Button Grid.Column="1" Content="✕" Style="{StaticResource CloseButtonStyle}" Click="Close_Click" Margin="0,0,12,0" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    <Button Grid.Column="1" Content="✕" Style="{StaticResource CloseButtonStyle}"
+                            Click="Close_Click" Margin="0,0,12,0"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Grid>
             </Border>
 
-            <!-- КОНТЕНТ -->
+            <!-- ===== КОНТЕНТ ===== -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24">
                 <StackPanel>
-                    <!-- КАРТКИ ЗІ СТАТИСТИКОЮ -->
-                    <UniformGrid Columns="6" Margin="0,0,0,24">
-                        <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="12" Padding="16" Margin="4" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+
+                    <!-- ===== КАРТКИ ЗІ СТАТИСТИКОЮ ===== -->
+                    <UniformGrid Columns="6" Margin="0,0,0,20">
+                        <Border Style="{StaticResource StatCardStyle}">
                             <StackPanel>
-                                <TextBlock Text="📁" FontSize="24" HorizontalAlignment="Center"/>
-                                <TextBlock Text="{Binding TotalFiles}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource TextPrimaryLight}"/>
-                                <TextBlock Text="Всього" FontSize="11" HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryLight}"/>
+                                <TextBlock Text="📁" FontSize="22" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding TotalFiles}" FontSize="22" FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextPrimaryLight}"
+                                           Margin="0,4,0,0"/>
+                                <TextBlock Text="Всього" FontSize="11" HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextSecondaryLight}"/>
                             </StackPanel>
                         </Border>
-                        <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="12" Padding="16" Margin="4" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                        <Border Style="{StaticResource StatCardStyle}">
                             <StackPanel>
-                                <TextBlock Text="🎬" FontSize="24" HorizontalAlignment="Center"/>
-                                <TextBlock Text="{Binding TotalFilms}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource TextPrimaryLight}"/>
-                                <TextBlock Text="Фільми" FontSize="11" HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryLight}"/>
+                                <TextBlock Text="🎬" FontSize="22" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding TotalFilms}" FontSize="22" FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextPrimaryLight}"
+                                           Margin="0,4,0,0"/>
+                                <TextBlock Text="Фільми" FontSize="11" HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextSecondaryLight}"/>
                             </StackPanel>
                         </Border>
-                        <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="12" Padding="16" Margin="4" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                        <Border Style="{StaticResource StatCardStyle}">
                             <StackPanel>
-                                <TextBlock Text="📖" FontSize="24" HorizontalAlignment="Center"/>
-                                <TextBlock Text="{Binding TotalBooks}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource TextPrimaryLight}"/>
-                                <TextBlock Text="Книги" FontSize="11" HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryLight}"/>
+                                <TextBlock Text="📖" FontSize="22" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding TotalBooks}" FontSize="22" FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextPrimaryLight}"
+                                           Margin="0,4,0,0"/>
+                                <TextBlock Text="Книги" FontSize="11" HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextSecondaryLight}"/>
                             </StackPanel>
                         </Border>
-                        <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="12" Padding="16" Margin="4" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                        <Border Style="{StaticResource StatCardStyle}">
                             <StackPanel>
-                                <TextBlock Text="🎵" FontSize="24" HorizontalAlignment="Center"/>
-                                <TextBlock Text="{Binding TotalMusic}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource TextPrimaryLight}"/>
-                                <TextBlock Text="Музика" FontSize="11" HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryLight}"/>
+                                <TextBlock Text="🎵" FontSize="22" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding TotalMusic}" FontSize="22" FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextPrimaryLight}"
+                                           Margin="0,4,0,0"/>
+                                <TextBlock Text="Музика" FontSize="11" HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextSecondaryLight}"/>
                             </StackPanel>
                         </Border>
-                        <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="12" Padding="16" Margin="4" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                        <Border Style="{StaticResource StatCardStyle}">
                             <StackPanel>
-                                <TextBlock Text="🖼️" FontSize="24" HorizontalAlignment="Center"/>
-                                <TextBlock Text="{Binding TotalImages}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource TextPrimaryLight}"/>
-                                <TextBlock Text="Зображення" FontSize="11" HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryLight}"/>
+                                <TextBlock Text="🖼️" FontSize="22" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding TotalImages}" FontSize="22" FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextPrimaryLight}"
+                                           Margin="0,4,0,0"/>
+                                <TextBlock Text="Зображення" FontSize="11" HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextSecondaryLight}"/>
                             </StackPanel>
                         </Border>
-                        <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="12" Padding="16" Margin="4" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                        <Border Style="{StaticResource StatCardStyle}">
                             <StackPanel>
-                                <TextBlock Text="💾" FontSize="24" HorizontalAlignment="Center"/>
-                                <TextBlock Text="{Binding TotalSize}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource TextPrimaryLight}"/>
-                                <TextBlock Text="Розмір" FontSize="11" HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryLight}"/>
+                                <TextBlock Text="💾" FontSize="22" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding TotalSize}" FontSize="18" FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextPrimaryLight}"
+                                           Margin="0,4,0,0"/>
+                                <TextBlock Text="Розмір" FontSize="11" HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextSecondaryLight}"/>
                             </StackPanel>
                         </Border>
                     </UniformGrid>
 
-                    <!-- ГРАФІК 1: КРУГОВА -->
-                    <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="16" Padding="20" Margin="0,0,0,20" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                    <!-- ===== ГРАФІК 1: КРУГОВА ===== -->
+                    <Border Style="{StaticResource ChartCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="📊 Розподіл за типами" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryLight}" Margin="0,0,0,16"/>
-							<lvc:PieChart Series="{Binding TypeSeries}"
-              Height="300"
-              LegendPosition="Right"
-              Title="{Binding TypeTitle}"
-              LegendTextPaint="{Binding LegendTextPaint}"
-              TooltipTextPaint="{Binding TooltipTextPaint}"/>
+                            <TextBlock Text="📊 Розподіл за типами" Style="{StaticResource ChartTitleStyle}"/>
+                            <lvc:PieChart Series="{Binding TypeSeries}"
+                                          Height="300"
+                                          LegendPosition="Right"
+                                          Title="{Binding TypeTitle}"
+                                          LegendTextPaint="{Binding LegendTextPaint}"
+                                          TooltipTextPaint="{Binding TooltipTextPaint}"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- ГРАФІК 2: СТОВПЧИКОВА -->
-                    <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="16" Padding="20" Margin="0,0,0,20" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                    <!-- ===== ГРАФІК 2: СТОВПЧИКОВА ===== -->
+                    <Border Style="{StaticResource ChartCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="📅 Розподіл за роками" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryLight}" Margin="0,0,0,16"/>
-                            <lvc:CartesianChart Series="{Binding YearSeries}" XAxes="{Binding YearXAxis}" YAxes="{Binding YearYAxis}" Height="300"/>
+                            <TextBlock Text="📅 Розподіл за роками" Style="{StaticResource ChartTitleStyle}"/>
+                            <lvc:CartesianChart Series="{Binding YearSeries}"
+                                                XAxes="{Binding YearXAxis}"
+                                                YAxes="{Binding YearYAxis}"
+                                                Height="300"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- ГРАФІК 3: ГОРИЗОНТАЛЬНА (ЖАНРИ) -->
-                    <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="16" Padding="20" Margin="0,0,0,20" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                    <!-- ===== ГРАФІК 3: ТОП ЖАНРІВ ===== -->
+                    <Border Style="{StaticResource ChartCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="🎭 Топ жанрів" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryLight}" Margin="0,0,0,16"/>
-                            <lvc:CartesianChart Series="{Binding GenreSeries}" XAxes="{Binding GenreXAxis}" YAxes="{Binding GenreYAxis}" Height="300"/>
+                            <TextBlock Text="🎭 Топ жанрів" Style="{StaticResource ChartTitleStyle}"/>
+                            <lvc:CartesianChart Series="{Binding GenreSeries}"
+                                                XAxes="{Binding GenreXAxis}"
+                                                YAxes="{Binding GenreYAxis}"
+                                                Height="300"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- ГРАФІК 4: ГОРИЗОНТАЛЬНА (ТОП-10) -->
-                    <Border Background="{DynamicResource BackgroundSecondary}" CornerRadius="16" Padding="20" Margin="0,0,0,20" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1">
+                    <!-- ===== ГРАФІК 4: ТОП-10 ФАЙЛІВ ===== -->
+                    <Border Style="{StaticResource ChartCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="🏆 Топ-10 найбільших файлів" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryLight}" Margin="0,0,0,16"/>
-                            <lvc:CartesianChart Series="{Binding LargestSeries}" XAxes="{Binding LargestXAxis}" YAxes="{Binding LargestYAxis}" Height="400"/>
+                            <TextBlock Text="🏆 Топ-10 найбільших файлів" Style="{StaticResource ChartTitleStyle}"/>
+                            <lvc:CartesianChart Series="{Binding LargestSeries}"
+                                                XAxes="{Binding LargestXAxis}"
+                                                YAxes="{Binding LargestYAxis}"
+                                                Height="400"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>

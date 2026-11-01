@@ -16,6 +16,11 @@ namespace MediaVault.Services
         private const string BASE_URL = "https://www.virustotal.com/api/v3";
         private const string CACHE_FILENAME = "virustotal_cache.json";
 
+        // ===== RATE LIMITER: 4 запити / хвилину =====
+        private const int REQUESTS_PER_MINUTE = 4;
+        private readonly SemaphoreSlim _rateLimiterLock = new(1, 1);
+        private readonly Queue<DateTime> _requestTimes = new();
+
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
         private readonly string _cacheFilePath;
@@ -23,9 +28,21 @@ namespace MediaVault.Services
 
         public bool HasApiKey => !string.IsNullOrWhiteSpace(_apiKey);
 
+        /// <summary>
+        /// Скільки запитів ще можна зробити в поточній хвилині.
+        /// </summary>
+        public int RequestsRemaining
+        {
+            get
+            {
+                var cutoff = DateTime.UtcNow.AddMinutes(-1);
+                var recent = _requestTimes.Count(t => t >= cutoff);
+                return Math.Max(0, REQUESTS_PER_MINUTE - recent);
+            }
+        }
+
         public VirusTotalService(string apiKey = null)
         {
-            // Спробуємо прочитати з параметра, якщо нема - з .env
             _apiKey = (string.IsNullOrWhiteSpace(apiKey)
                 ? EnvService.Get("VIRUSTOTAL_API_KEY", "")
                 : apiKey)?.Trim();
@@ -53,15 +70,24 @@ namespace MediaVault.Services
             CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(sha256Hash))
-                return new VirusScanResult { Status = SecurityLevel.Unknown, FileName = Path.GetFileName(filePath) };
+            {
+                return new VirusScanResult
+                {
+                    Status = SecurityLevel.Unknown,
+                    FileName = Path.GetFileName(filePath)
+                };
+            }
 
-            // Check cache first
+            // ===== КЕШ: не витрачаємо квоту VT на повторні файли =====
             if (_cache.TryGetValue(sha256Hash.ToLowerInvariant(), out var cachedResult) &&
                 cachedResult.Status != SecurityLevel.Unknown)
             {
                 cachedResult.ScannerName ??= "VirusTotal";
                 return cachedResult;
             }
+
+            // ===== RATE LIMIT: чекаємо, поки звільниться квота =====
+            await WaitForRateLimitAsync(cancellationToken);
 
             try
             {
@@ -91,6 +117,38 @@ namespace MediaVault.Services
                     Error = ex.Message,
                     ShouldUseWindowsDefender = true
                 };
+            }
+        }
+
+        /// <summary>
+        /// Rate limiter: 4 запити / 60 секунд.
+        /// Гарантує, що VT не поверне 429.
+        /// </summary>
+        private async Task WaitForRateLimitAsync(CancellationToken cancellationToken)
+        {
+            await _rateLimiterLock.WaitAsync(cancellationToken);
+            try
+            {
+                while (true)
+                {
+                    var cutoff = DateTime.UtcNow.AddMinutes(-1);
+                    while (_requestTimes.Count > 0 && _requestTimes.Peek() < cutoff)
+                        _requestTimes.Dequeue();
+
+                    if (_requestTimes.Count < REQUESTS_PER_MINUTE)
+                    {
+                        _requestTimes.Enqueue(DateTime.UtcNow);
+                        return;
+                    }
+
+                    var waitTime = _requestTimes.Peek().AddMinutes(1) - DateTime.UtcNow;
+                    if (waitTime > TimeSpan.Zero)
+                        await Task.Delay(waitTime, cancellationToken);
+                }
+            }
+            finally
+            {
+                _rateLimiterLock.Release();
             }
         }
 
@@ -132,7 +190,6 @@ namespace MediaVault.Services
                     Sha256Hash = sha256Hash
                 };
 
-                // Parse stats
                 if (attributes.TryGetProperty("last_analysis_stats", out var stats))
                 {
                     result.TotalEngines = stats.EnumerateObject()
@@ -155,7 +212,6 @@ namespace MediaVault.Services
                     return result;
                 }
 
-                // Determine status
                 if (result.MaliciousCount > 0)
                 {
                     result.Status = SecurityLevel.Dangerous;
@@ -171,7 +227,6 @@ namespace MediaVault.Services
                     result.Status = SecurityLevel.Safe;
                 }
 
-                // Get threat names
                 if (attributes.TryGetProperty("last_analysis_results", out var results))
                 {
                     var threats = new List<string>();
@@ -192,7 +247,7 @@ namespace MediaVault.Services
                     }
 
                     if (threats.Count > 0)
-                        result.ThreatDetails = string.Join("; ", threats.Take(3)); // Show first 3
+                        result.ThreatDetails = string.Join("; ", threats.Take(3));
                 }
 
                 result.ScannedAt = DateTime.Now;
@@ -265,6 +320,22 @@ namespace MediaVault.Services
         public int GetCachedResultsCount()
         {
             return _cache.Count;
+        }
+
+        /// <summary>
+        /// Скидає rate limiter (для тестів або ручного перезапуску).
+        /// </summary>
+        public void ResetRateLimiter()
+        {
+            _rateLimiterLock.Wait();
+            try
+            {
+                _requestTimes.Clear();
+            }
+            finally
+            {
+                _rateLimiterLock.Release();
+            }
         }
     }
 

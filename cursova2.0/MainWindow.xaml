@@ -1015,10 +1015,11 @@
                                           Foreground="{DynamicResource TextSecondaryLight}" FontSize="12"
                                           VerticalAlignment="Center" Margin="0,0,20,0"/>
 
-                                <!-- Фільтр за метаданими -->
-                                <CheckBox Content="❌ Без метаданих" IsChecked="{Binding ShowOnlyWithoutMetadata}"
+                                <!-- Фільтр за наявністю метаданих -->
+                                <CheckBox Content="✓ Тільки з метаданими" IsChecked="{Binding ShowOnlyWithoutMetadata}"
                                           Foreground="{DynamicResource TextSecondaryLight}" FontSize="12"
-                                          VerticalAlignment="Center" Margin="0,0,20,0"/>
+                                          VerticalAlignment="Center" Margin="0,0,20,0"
+                                          ToolTip="Показувати тільки файли, які мають хоч якісь метадані (назва, автор, жанр або опис)"/>
 
                                 <!-- Скинути фільтри -->
                                 <Button Content="🔄 Скинути" Style="{StaticResource IconButtonStyle}"

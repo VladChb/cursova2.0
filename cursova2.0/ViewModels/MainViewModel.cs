@@ -1312,15 +1312,14 @@ namespace MediaVault.ViewModels
                 query = query.Where(x => x.IsFavorite);
             }
 
-            // 8. Фільтр за наявністю метаданих
+            // 8. Фільтр за наявністю метаданих (приховати файли без метаданих)
             if (ShowOnlyWithoutMetadata)
             {
                 query = query.Where(x =>
-                    string.IsNullOrEmpty(x.Title) ||
-                    string.IsNullOrEmpty(x.Author) ||
-                    string.IsNullOrEmpty(x.Genre) ||
-                    string.IsNullOrEmpty(x.Description) ||
-                    x.Rating == 0);
+                    (!string.IsNullOrEmpty(x.Title) && !string.IsNullOrWhiteSpace(x.Title)) ||
+                    (!string.IsNullOrEmpty(x.Author) && !string.IsNullOrWhiteSpace(x.Author)) ||
+                    (!string.IsNullOrEmpty(x.Genre) && !string.IsNullOrWhiteSpace(x.Genre)) ||
+                    (!string.IsNullOrEmpty(x.Description) && !string.IsNullOrWhiteSpace(x.Description)));
             }
 
             // 9. Сортування

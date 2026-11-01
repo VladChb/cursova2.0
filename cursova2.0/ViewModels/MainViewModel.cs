@@ -1313,13 +1313,14 @@ namespace MediaVault.ViewModels
             }
 
             // 8. Фільтр за наявністю метаданих (приховати файли без метаданих)
+            // Метадані: Description (опис), Rating (оцінка), PosterPath/PosterUrl (постер)
             if (ShowOnlyWithoutMetadata)
             {
                 query = query.Where(x =>
-                    (!string.IsNullOrEmpty(x.Title) && !string.IsNullOrWhiteSpace(x.Title)) ||
-                    (!string.IsNullOrEmpty(x.Author) && !string.IsNullOrWhiteSpace(x.Author)) ||
-                    (!string.IsNullOrEmpty(x.Genre) && !string.IsNullOrWhiteSpace(x.Genre)) ||
-                    (!string.IsNullOrEmpty(x.Description) && !string.IsNullOrWhiteSpace(x.Description)));
+                    (!string.IsNullOrEmpty(x.Description) && !string.IsNullOrWhiteSpace(x.Description)) ||
+                    x.Rating > 0 ||
+                    (!string.IsNullOrEmpty(x.PosterPath) && !string.IsNullOrWhiteSpace(x.PosterPath)) ||
+                    (!string.IsNullOrEmpty(x.PosterUrl) && !string.IsNullOrWhiteSpace(x.PosterUrl)));
             }
 
             // 9. Сортування

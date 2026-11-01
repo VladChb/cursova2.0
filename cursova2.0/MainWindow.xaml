@@ -1019,7 +1019,7 @@
                                 <CheckBox Content="✓ Тільки з метаданими" IsChecked="{Binding ShowOnlyWithoutMetadata}"
                                           Foreground="{DynamicResource TextSecondaryLight}" FontSize="12"
                                           VerticalAlignment="Center" Margin="0,0,20,0"
-                                          ToolTip="Показувати тільки файли, які мають хоч якісь метадані (назва, автор, жанр або опис)"/>
+                                          ToolTip="Показувати тільки файли, які мають опис, оцінку або постер"/>
 
                                 <!-- Скинути фільтри -->
                                 <Button Content="🔄 Скинути" Style="{StaticResource IconButtonStyle}"

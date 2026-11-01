@@ -1,0 +1,191 @@
+<Window x:Class="MediaVault.Views.StatsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Статистика колекції" Height="700" Width="1000"
+        Background="Transparent"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None" AllowsTransparency="True">
+    <Border Background="{DynamicResource BackgroundPrimary}" CornerRadius="12"
+            BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{DynamicResource SidebarBackground}"
+                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1">
+                <Grid>
+                    <TextBlock Text="📊 Статистика колекції" FontSize="16" FontWeight="Bold"
+                               Foreground="{DynamicResource TextPrimaryLight}"
+                               VerticalAlignment="Center" Margin="20,0"/>
+                    <Button Grid.Column="1" Content="✕" Click="CloseButton_Click"
+                            Style="{StaticResource CloseButtonStyle}"
+                            HorizontalAlignment="Right" Margin="0,0,10,0"/>
+                </Grid>
+            </Border>
+
+            <!-- Content -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                          Padding="20" Background="{DynamicResource BackgroundPrimary}">
+                <StackPanel>
+                    <!-- Основні метрики -->
+                    <TextBlock Text="ОСНОВНІ МЕТРИКИ" Foreground="{DynamicResource TextMutedDark}"
+                               FontSize="12" FontWeight="Bold" Margin="0,0,0,12"/>
+                    <Grid Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Background="{DynamicResource BackgroundCard}"
+                                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="📁" FontSize="24" Margin="0,0,0,8"/>
+                                <TextBlock Text="Всього файлів" Foreground="{DynamicResource TextSecondaryLight}"
+                                           FontSize="12"/>
+                                <TextBlock Text="{Binding Stats.TotalFiles}" FontSize="18" FontWeight="Bold"
+                                           Foreground="{DynamicResource TextPrimaryLight}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" Background="{DynamicResource BackgroundCard}"
+                                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"
+                                CornerRadius="8" Padding="16" Margin="12,0">
+                            <StackPanel>
+                                <TextBlock Text="💾" FontSize="24" Margin="0,0,0,8"/>
+                                <TextBlock Text="Загальний розмір" Foreground="{DynamicResource TextSecondaryLight}"
+                                           FontSize="12"/>
+                                <TextBlock Text="{Binding FormattedTotalSize}" FontSize="18" FontWeight="Bold"
+                                           Foreground="{DynamicResource TextPrimaryLight}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" Background="{DynamicResource BackgroundCard}"
+                                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"
+                                CornerRadius="8" Padding="16" Margin="12,0">
+                            <StackPanel>
+                                <TextBlock Text="⭐" FontSize="24" Margin="0,0,0,8"/>
+                                <TextBlock Text="Середній рейтинг" Foreground="{DynamicResource TextSecondaryLight}"
+                                           FontSize="12"/>
+                                <TextBlock Text="{Binding AverageRatingText}" FontSize="18" FontWeight="Bold"
+                                           Foreground="{DynamicResource TextPrimaryLight}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="3" Background="{DynamicResource BackgroundCard}"
+                                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"
+                                CornerRadius="8" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="🔄" FontSize="24" Margin="0,0,0,8"/>
+                                <TextBlock Text="Дублікати" Foreground="{DynamicResource TextSecondaryLight}"
+                                           FontSize="12"/>
+                                <TextBlock Text="{Binding Stats.DuplicateCount}" FontSize="18" FontWeight="Bold"
+                                           Foreground="{DynamicResource TextPrimaryLight}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Розподіл за типами -->
+                    <TextBlock Text="РОЗПОДІЛ ЗА ТИПАМИ" Foreground="{DynamicResource TextMutedDark}"
+                               FontSize="12" FontWeight="Bold" Margin="0,20,0,12"/>
+                    <ItemsControl ItemsSource="{Binding Stats.FilesByType}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{DynamicResource BackgroundCard}" CornerRadius="6"
+                                        BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"
+                                        Padding="12,8" Margin="0,0,0,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Key}"
+                                                   Foreground="{DynamicResource TextPrimaryLight}" FontSize="12"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Value}"
+                                                   Foreground="{DynamicResource TextSecondaryLight}" FontSize="12"
+                                                   FontWeight="Bold"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Рейтинги -->
+                    <TextBlock Text="РОЗПОДІЛ РЕЙТИНГІВ" Foreground="{DynamicResource TextMutedDark}"
+                               FontSize="12" FontWeight="Bold" Margin="0,20,0,12"/>
+                    <ItemsControl ItemsSource="{Binding Stats.RatingDistribution}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{DynamicResource BackgroundCard}" CornerRadius="6"
+                                        BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"
+                                        Padding="12,8" Margin="0,0,0,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Key}"
+                                                   Foreground="{DynamicResource TextPrimaryLight}" FontSize="12"
+                                                   FontWeight="Bold" MinWidth="30"/>
+                                        <Border Grid.Column="1" Background="{DynamicResource BorderLight}" 
+                                                CornerRadius="4" Margin="12,0" Height="20">
+                                            <ProgressBar Value="{Binding Value}" Maximum="100"
+                                                        Background="Transparent"
+                                                        Foreground="{DynamicResource AccentColor}" Height="20"/>
+                                        </Border>
+                                        <TextBlock Grid.Column="2" Text="{Binding Value}"
+                                                   Foreground="{DynamicResource TextSecondaryLight}" FontSize="12"
+                                                   MinWidth="40"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Топ жанри -->
+                    <TextBlock Text="ТОП ЖАНРИ" Foreground="{DynamicResource TextMutedDark}"
+                               FontSize="12" FontWeight="Bold" Margin="0,20,0,12"/>
+                    <ItemsControl ItemsSource="{Binding Stats.TopGenres}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{DynamicResource BackgroundCard}" CornerRadius="6"
+                                        BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"
+                                        Padding="12,8" Margin="0,0,0,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Item1}"
+                                                   Foreground="{DynamicResource TextPrimaryLight}" FontSize="12"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Item2}"
+                                                   Foreground="{DynamicResource TextSecondaryLight}" FontSize="12"
+                                                   FontWeight="Bold"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Footer -->
+            <Border Grid.Row="2" Background="{DynamicResource BackgroundSecondary}"
+                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0">
+                <Button Content="Закрити" Click="CloseButton_Click"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        HorizontalAlignment="Right" Margin="0,0,20,0"/>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

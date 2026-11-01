@@ -14,6 +14,22 @@ using MediaVault.Services;
 
 namespace MediaVault.ViewModels
 {
+    public enum DateFilterType
+    {
+        All,
+        Today,
+        Week,
+        Month
+    }
+
+    public enum SizeFilterType
+    {
+        All,
+        Small,      // < 10 MB
+        Medium,     // 10 MB - 500 MB
+        Large       // > 500 MB
+    }
+
     public class MainViewModel : ObservableObject
     {
         private readonly FileScanner _scanner;
@@ -119,7 +135,128 @@ namespace MediaVault.ViewModels
                     ApplyFilter();
             }
         }
-      
+
+        // ===== ФІЛЬТРИ =====
+        private int _minRating = 0;
+        public int MinRating
+        {
+            get => _minRating;
+            set
+            {
+                if (SetProperty(ref _minRating, value))
+                {
+                    CurrentPage = 1;
+                    ApplyFilter();
+                }
+            }
+        }
+
+        private DateFilterType _dateFilter = DateFilterType.All;
+        public DateFilterType DateFilter
+        {
+            get => _dateFilter;
+            set
+            {
+                if (SetProperty(ref _dateFilter, value))
+                {
+                    CurrentPage = 1;
+                    ApplyFilter();
+                }
+            }
+        }
+
+        // String version for XAML binding
+        private string _dateFilterString = "All";
+        public string DateFilterString
+        {
+            get => _dateFilterString;
+            set
+            {
+                if (SetProperty(ref _dateFilterString, value))
+                {
+                    DateFilter = value switch
+                    {
+                        "Today" => DateFilterType.Today,
+                        "Week" => DateFilterType.Week,
+                        "Month" => DateFilterType.Month,
+                        _ => DateFilterType.All
+                    };
+                }
+            }
+        }
+
+        private SizeFilterType _sizeFilter = SizeFilterType.All;
+        public SizeFilterType SizeFilter
+        {
+            get => _sizeFilter;
+            set
+            {
+                if (SetProperty(ref _sizeFilter, value))
+                {
+                    CurrentPage = 1;
+                    ApplyFilter();
+                }
+            }
+        }
+
+        // String version for XAML binding
+        private string _sizeFilterString = "All";
+        public string SizeFilterString
+        {
+            get => _sizeFilterString;
+            set
+            {
+                if (SetProperty(ref _sizeFilterString, value))
+                {
+                    SizeFilter = value switch
+                    {
+                        "Small" => SizeFilterType.Small,
+                        "Medium" => SizeFilterType.Medium,
+                        "Large" => SizeFilterType.Large,
+                        _ => SizeFilterType.All
+                    };
+                }
+            }
+        }
+
+        private bool _showOnlyWithoutMetadata = false;
+        public bool ShowOnlyWithoutMetadata
+        {
+            get => _showOnlyWithoutMetadata;
+            set
+            {
+                if (SetProperty(ref _showOnlyWithoutMetadata, value))
+                {
+                    CurrentPage = 1;
+                    ApplyFilter();
+                }
+            }
+        }
+
+        private bool _showOnlyFavorites = false;
+        public bool ShowOnlyFavorites
+        {
+            get => _showOnlyFavorites;
+            set
+            {
+                if (SetProperty(ref _showOnlyFavorites, value))
+                {
+                    CurrentPage = 1;
+                    ApplyFilter();
+                }
+            }
+        }
+
+        public void ResetFilters()
+        {
+            MinRating = 0;
+            DateFilterString = "All";
+            SizeFilterString = "All";
+            ShowOnlyWithoutMetadata = false;
+            ShowOnlyFavorites = false;
+            SearchText = string.Empty;
+        }
+
 
         public int TotalCount => AllMediaItems.Count;
         public int FilmCount => AllMediaItems.Count(x => x.Type == MediaType.Film);
@@ -153,6 +290,7 @@ namespace MediaVault.ViewModels
 
         public RelayCommand FocusSearchCommand { get; }
         public RelayCommand OpenHelpCommand { get; }
+        public RelayCommand OpenStatsCommand { get; }
 
         private bool _isToolsMode;
         public bool IsToolsMode
@@ -237,6 +375,7 @@ namespace MediaVault.ViewModels
 
         public RelayCommand RemoveFolderCommand { get; }
         public RelayCommand VerifyCollectionCommand { get; }
+        public RelayCommand ResetFiltersCommand { get; }
 
 
 
@@ -276,6 +415,8 @@ namespace MediaVault.ViewModels
 
             FocusSearchCommand = new RelayCommand(_ => FocusSearch());
             OpenHelpCommand = new RelayCommand(_ => OpenHelp());
+            ResetFiltersCommand = new RelayCommand(_ => ResetFilters());
+            OpenStatsCommand = new RelayCommand(_ => OpenStats());
             ClearCategoryCommand = new RelayCommand(async param => await ClearCategoryAsync(param));
 
             RemoveFolderCommand = new RelayCommand(async _ => await RemoveFolderAsync());
@@ -450,6 +591,11 @@ namespace MediaVault.ViewModels
             OpenHelpRequested?.Invoke(this, EventArgs.Empty);
         }
 
+        private void OpenStats()
+        {
+            OpenStatsRequested?.Invoke(this, EventArgs.Empty);
+        }
+
 
         private void BuildFolderTree()
         {
@@ -543,6 +689,7 @@ namespace MediaVault.ViewModels
 
         public event EventHandler FocusSearchRequested;
         public event EventHandler OpenHelpRequested;
+        public event EventHandler OpenStatsRequested;
 
         private async Task UpdateItemMetadataAsync(MediaItem item)
         {
@@ -1076,12 +1223,7 @@ namespace MediaVault.ViewModels
             {
                 if (typeStr == "Favorite")
                 {
-                    FilteredMediaItems.Clear();
-                    var favorites = AllMediaItems.Where(x => x.IsFavorite).ToList();
-                    TotalFilteredCount = favorites.Count;
-
-                    foreach (var item in favorites.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
-                        FilteredMediaItems.Add(item);
+                    ShowOnlyFavorites = !ShowOnlyFavorites;
                     return;
                 }
 
@@ -1134,7 +1276,54 @@ namespace MediaVault.ViewModels
                      x.Sha256Hash.Contains(searchHash, StringComparison.OrdinalIgnoreCase)));
             }
 
-            // 4. Сортування
+            // 4. Фільтр за рейтингом
+            if (MinRating > 0)
+                query = query.Where(x => x.Rating >= MinRating);
+
+            // 5. Фільтр за датою
+            if (DateFilter != DateFilterType.All)
+            {
+                var now = DateTime.Now;
+                DateTime filterDate = DateFilter switch
+                {
+                    DateFilterType.Today => now.Date,
+                    DateFilterType.Week => now.AddDays(-7),
+                    DateFilterType.Month => now.AddMonths(-1),
+                    _ => DateTime.MinValue
+                };
+                query = query.Where(x => x.DateAdded >= filterDate);
+            }
+
+            // 6. Фільтр за розміром файлу
+            if (SizeFilter != SizeFilterType.All)
+            {
+                query = SizeFilter switch
+                {
+                    SizeFilterType.Small => query.Where(x => x.FileSize < 10 * 1024 * 1024),      // < 10 MB
+                    SizeFilterType.Medium => query.Where(x => x.FileSize >= 10 * 1024 * 1024 && x.FileSize < 500 * 1024 * 1024),
+                    SizeFilterType.Large => query.Where(x => x.FileSize >= 500 * 1024 * 1024),    // > 500 MB
+                    _ => query
+                };
+            }
+
+            // 7. Фільтр за улюбленими
+            if (ShowOnlyFavorites)
+            {
+                query = query.Where(x => x.IsFavorite);
+            }
+
+            // 8. Фільтр за наявністю метаданих
+            if (ShowOnlyWithoutMetadata)
+            {
+                query = query.Where(x =>
+                    string.IsNullOrEmpty(x.Title) ||
+                    string.IsNullOrEmpty(x.Author) ||
+                    string.IsNullOrEmpty(x.Genre) ||
+                    string.IsNullOrEmpty(x.Description) ||
+                    x.Rating == 0);
+            }
+
+            // 9. Сортування
             query = SortBy switch
             {
                 "Title" => query.OrderBy(x => x.Title),

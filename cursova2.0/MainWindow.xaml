@@ -34,6 +34,7 @@
         <converters:RatingToVisibilityConverter x:Key="RatingToVisibilityConverter"/>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:StringToIntConverter x:Key="StringToIntConverter"/>
 
         <!-- ===== СКРОЛБАР ===== -->
         <Style TargetType="ScrollBar">
@@ -919,6 +920,7 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <!-- Рядок 1: пошук + сортування + дії -->
@@ -968,8 +970,64 @@
                                 </Border>
                             </DockPanel>
 
-                            <!-- Рядок 2: статистика + прогрес -->
-                            <Grid Grid.Row="1" Margin="0,12,0,0">
+                            <!-- Рядок 2: фільтри -->
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,12,0,12" VerticalAlignment="Center">
+                                <!-- Фільтр за рейтингом -->
+                                <TextBlock Text="⭐ Мінімум рейтинг:" Foreground="{DynamicResource TextSecondaryLight}"
+                                           FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <ComboBox Style="{StaticResource ModernComboBoxStyle}" Width="120" Height="32"
+                                          FontSize="12" SelectedValue="{Binding MinRating, Converter={StaticResource StringToIntConverter}}" SelectedValuePath="Tag"
+                                          Margin="0,0,20,0">
+                                    <ComboBoxItem Tag="0">Усі</ComboBoxItem>
+                                    <ComboBoxItem Tag="1">⭐ (1+)</ComboBoxItem>
+                                    <ComboBoxItem Tag="2">⭐⭐ (2+)</ComboBoxItem>
+                                    <ComboBoxItem Tag="3">⭐⭐⭐ (3+)</ComboBoxItem>
+                                    <ComboBoxItem Tag="4">⭐⭐⭐⭐ (4+)</ComboBoxItem>
+                                    <ComboBoxItem Tag="5">⭐⭐⭐⭐⭐ (5)</ComboBoxItem>
+                                </ComboBox>
+
+                                <!-- Фільтр за датою -->
+                                <TextBlock Text="📅 Дата:" Foreground="{DynamicResource TextSecondaryLight}"
+                                           FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <ComboBox Style="{StaticResource ModernComboBoxStyle}" Width="120" Height="32"
+                                          FontSize="12" SelectedValue="{Binding DateFilterString}" SelectedValuePath="Tag"
+                                          Margin="0,0,20,0">
+                                    <ComboBoxItem Content="Усі" Tag="All"/>
+                                    <ComboBoxItem Content="Сьогодні" Tag="Today"/>
+                                    <ComboBoxItem Content="За тиждень" Tag="Week"/>
+                                    <ComboBoxItem Content="За місяць" Tag="Month"/>
+                                </ComboBox>
+
+                                <!-- Фільтр за розміром -->
+                                <TextBlock Text="💾 Розмір:" Foreground="{DynamicResource TextSecondaryLight}"
+                                           FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <ComboBox Style="{StaticResource ModernComboBoxStyle}" Width="130" Height="32"
+                                          FontSize="12" SelectedValue="{Binding SizeFilterString}" SelectedValuePath="Tag"
+                                          Margin="0,0,20,0">
+                                    <ComboBoxItem Content="Всі розміри" Tag="All"/>
+                                    <ComboBoxItem Content="Маленькі (&lt;10MB)" Tag="Small"/>
+                                    <ComboBoxItem Content="Середні (10-500MB)" Tag="Medium"/>
+                                    <ComboBoxItem Content="Великі (&gt;500MB)" Tag="Large"/>
+                                </ComboBox>
+
+                                <!-- Фільтр за улюбленими -->
+                                <CheckBox Content="⭐ Тільки улюблені" IsChecked="{Binding ShowOnlyFavorites}"
+                                          Foreground="{DynamicResource TextSecondaryLight}" FontSize="12"
+                                          VerticalAlignment="Center" Margin="0,0,20,0"/>
+
+                                <!-- Фільтр за метаданими -->
+                                <CheckBox Content="❌ Без метаданих" IsChecked="{Binding ShowOnlyWithoutMetadata}"
+                                          Foreground="{DynamicResource TextSecondaryLight}" FontSize="12"
+                                          VerticalAlignment="Center" Margin="0,0,20,0"/>
+
+                                <!-- Скинути фільтри -->
+                                <Button Content="🔄 Скинути" Style="{StaticResource IconButtonStyle}"
+                                        Command="{Binding ResetFiltersCommand}"
+                                        ToolTip="Скинути всі фільтри"/>
+                            </StackPanel>
+
+                            <!-- Рядок 3: статистика + прогрес -->
+                            <Grid Grid.Row="2" Margin="0,0,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
